@@ -25,7 +25,7 @@
             position: relative;
         }
 
-        /* --- CONTENEDOR DE EFECTOS MÁGICOS (FROZEN STYLE) --- */
+        /* --- EFECTOS MÁGICOS --- */
         #fx-container {
             position: fixed; top: 0; left: 0;
             width: 100%; height: 100%;
@@ -82,7 +82,6 @@
 
         .logo-central { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
 
-        /* ESCANEO LÁSER INICIAL */
         .top-banner::after {
             content: "";
             position: absolute; top: 0; left: -150%;
@@ -97,16 +96,21 @@
         .dashboard-content {
             display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
             background: rgba(0, 0, 0, 0.6); padding: 25px; 
-            border: 2px solid var(--border-metal); border-radius: 10px;
+            border: 2px solid var(--border-metal); border-radius: 20px;
         }
 
-        .buttons-column { display: flex; flex-direction: column; gap: 10px; }
+        .buttons-column { display: flex; flex-direction: column; gap: 10px; position: relative; align-items: center; }
         
+        .dropdown { position: relative; width: 100%; display: flex; justify-content: center; }
+
+        /* --- BOTONES CENTRADOS --- */
         .dropbtn {
             background: linear-gradient(180deg, #444, #111);
-            border: 1px solid #555; padding: 10px 15px; font-size: 0.85rem; 
-            width: 85%; color: #fff; font-weight: bold; cursor: pointer;
-            border-radius: 6px; text-align: left; text-transform: uppercase;
+            border: 1px solid #555; padding: 12px 15px; font-size: 0.85rem; 
+            width: 90%; color: #fff; font-weight: bold; cursor: pointer;
+            border-radius: 6px; 
+            text-align: center; /* CENTRADO DE TEXTO */
+            text-transform: uppercase;
             letter-spacing: 1px; transition: 0.3s; outline: none;
         }
 
@@ -114,9 +118,13 @@
 
         .dropdown-content {
             display: none; position: absolute; background-color: #0b1a2a;
-            min-width: 260px; z-index: 100; border: 2px solid var(--neon-blue); 
-            border-radius: 8px; padding: 15px; left: 0; top: 105%;
+            min-width: 260px; z-index: 2000;
+            border: 2px solid var(--neon-blue); 
+            border-radius: 8px; padding: 15px; 
+            left: 50%; transform: translateX(-50%); /* CENTRADO DEL MENÚ AL BOTÓN */
+            top: 100%;
             box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            text-align: center; /* CENTRADO DE TEXTO INTERNO */
         }
 
         .show { display: block !important; }
@@ -126,19 +134,76 @@
             align-items: center; text-align: center; border-left: 2px solid #333; 
         }
 
+        /* --- WHATSAPP LINK --- */
+        .whatsapp-link {
+            color: var(--neon-blue);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.3rem;
+            transition: 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .whatsapp-link img {
+            width: 30px;
+            height: 30px;
+            filter: drop-shadow(0 0 5px rgba(0, 212, 255, 0.4));
+            transition: 0.3s;
+        }
+
+        .whatsapp-link:hover {
+            color: #25d366;
+            text-shadow: 0 0 15px rgba(37, 211, 102, 0.6);
+            transform: scale(1.05);
+        }
+
+        .whatsapp-link:hover img {
+            filter: drop-shadow(0 0 8px rgba(37, 211, 102, 0.8));
+        }
+
         .tasa-box { margin-top: 20px; padding: 20px; background: linear-gradient(145deg, #0b1a2a, #1a2a3a); border: 2px solid var(--neon-blue); border-radius: 10px; width: 80%; }
         .tasa-display { font-size: 1.8rem; font-weight: bold; color: #fff; display: block; margin-top: 10px; }
 
-        .slider-container { width: 95%; max-width: 1100px; overflow: hidden; background: #000; border: 2px solid var(--border-metal); border-radius: 10px; margin-top: 30px; height: 160px; position: relative; z-index: 10; }
-        .slider-track { display: flex; width: calc(250px * 14); animation: scroll 35s linear infinite; }
-        .slider-track img { width: 250px; height: 150px; object-fit: cover; padding: 5px; opacity: 0.7; cursor: pointer; }
-        @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(calc(-250px * 7)); } }
+        /* --- CAROUSEL --- */
+        .carousel-container { 
+            width: 95%; max-width: 1100px; 
+            background: #000; border: 4px solid var(--border-metal); 
+            border-radius: 15px; margin-top: 30px; height: 450px; 
+            position: relative; z-index: 1; overflow: hidden;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
 
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); padding-top: 50px; }
+        .carousel-slide {
+            position: absolute; width: 100%; height: 100%;
+            opacity: 0; transition: opacity 1s ease-in-out;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .carousel-slide.active { opacity: 1; }
+
+        .carousel-slide img { 
+            width: 100%; height: 100%; object-fit: contain; 
+            cursor: pointer; background: #050a0f;
+        }
+
+        .carousel-caption {
+            position: absolute; bottom: 0; background: rgba(0,0,0,0.7);
+            width: 100%; padding: 15px; text-align: center;
+            color: var(--neon-blue); font-weight: bold; font-size: 1.1rem;
+            border-top: 1px solid var(--neon-blue);
+        }
+
+        .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); padding-top: 50px; }
         .modal-content { margin: auto; display: block; width: 80%; max-width: 900px; border: 3px solid var(--neon-blue); border-radius: 10px; }
         .close-modal { position: absolute; top: 20px; right: 35px; color: #fff; font-size: 40px; cursor: pointer; }
 
-        @media (max-width: 768px) { .dashboard-content { grid-template-columns: 1fr; } .info-column { border-left: none; border-top: 2px solid #333; padding-top: 20px; } }
+        @media (max-width: 768px) { 
+            .dashboard-content { grid-template-columns: 1fr; } 
+            .info-column { border-left: none; border-top: 2px solid #333; padding-top: 20px; } 
+            .carousel-container { height: 300px; }
+        }
     </style>
 </head>
 <body>
@@ -199,7 +264,12 @@
 
             <div class="info-column">
                 <h4>CONTACTO</h4>
-                <p>📞 +58 412-9830982</p>
+                <p>
+                    <a href="https://wa.me/584129830982?text=Hola%20FRIOTECX,%20%C2%BFest%C3%A1%20disponible%20el%20servicio?%20Deseo%20realizar%20una%20consulta%20t%C3%A9cnica." class="whatsapp-link">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+                        +58 412-9830982
+                    </a>
+                </p>
                 <div class="tasa-box">
                     <span class="tasa-label">Dólar Oficial BCV</span>
                     <span id="tasa-display" class="tasa-display">--- BS</span>
@@ -208,18 +278,43 @@
         </div>
     </div>
 
-    <div class="slider-container">
-        <div class="slider-track">
+    <div class="carousel-container">
+        <div class="carousel-slide active">
             <img src="trabajo1.jpg" onclick="openModal(this)">
+            <div class="carousel-caption">TRABAJOS GARANTIZADOS</div>
+        </div>
+        <div class="carousel-slide">
             <img src="trabajo2.jpg" onclick="openModal(this)">
+            <div class="carousel-caption">MANTENIMIENTO PROFESIONAL</div>
+        </div>
+        <div class="carousel-slide">
             <img src="trabajo3.jpg" onclick="openModal(this)">
+            <div class="carousel-caption">REPARACIÓN ESPECIALIZADA</div>
+        </div>
+        <div class="carousel-slide">
             <img src="trabajo4.jpg" onclick="openModal(this)">
+            <div class="carousel-caption">SOLUCIONES EN REFRIGERACIÓN</div>
+        </div>
+        <div class="carousel-slide">
             <img src="trabajo5.jpg" onclick="openModal(this)">
+            <div class="carousel-caption">CALIDAD Y CONFIANZA</div>
         </div>
     </div>
 
     <script>
-        // Funciones de Interfaz
+        // Lógica del Carrusel
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        function moveSlides() {
+            slides.forEach(s => s.classList.remove('active'));
+            slideIndex++;
+            if (slideIndex > slides.length) { slideIndex = 1 }
+            slides[slideIndex-1].classList.add('active');
+            setTimeout(moveSlides, 3500);
+        }
+        moveSlides();
+
+        // Control de Menús
         function toggleMenu(menuId, btn) {
             const todosLosMenus = document.querySelectorAll('.dropdown-content');
             const todosLosBotones = document.querySelectorAll('.dropbtn');
@@ -236,7 +331,7 @@
             }
         }
 
-        // Tasa del Dólar
+        // Tasa BCV
         async function actualizarTasa() {
             try {
                 const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
@@ -252,15 +347,14 @@
         }
         actualizarTasa();
 
-        // Modal de Imágenes
+        // Modal de imágenes
         const modal = document.getElementById('imageModal');
         const modalImg = document.getElementById('imgModalTarget');
         function openModal(element) { modal.style.display = "block"; modalImg.src = element.src; }
         document.getElementById('closeModal').onclick = function() { modal.style.display = "none"; }
 
-        // --- LÓGICA MÁGICA FROZEN ---
+        // Efectos Visuales
         const fxContainer = document.getElementById('fx-container');
-
         function crearCopo() {
             const copo = document.createElement('div');
             copo.classList.add('snowflake');
@@ -272,7 +366,6 @@
             fxContainer.appendChild(copo);
             setTimeout(() => copo.remove(), dur * 1000);
         }
-
         function crearChispa() {
             const chispa = document.createElement('div');
             chispa.classList.add('sparkle');
@@ -281,7 +374,6 @@
             fxContainer.appendChild(chispa);
             setTimeout(() => chispa.remove(), 1000);
         }
-
         function dispararViento() {
             const rafaga = document.createElement('div');
             rafaga.classList.add('wind-gust');
@@ -291,7 +383,6 @@
             setTimeout(() => rafaga.remove(), 2000);
         }
 
-        // Iniciar efectos después del láser
         setTimeout(() => {
             setInterval(crearCopo, 250); 
             setInterval(crearChispa, 500); 
