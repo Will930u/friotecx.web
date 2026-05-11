@@ -1,28 +1,18 @@
-# ❄️ FRIOTECX - El Poder del Frío
+# ❄️ FRIOTECX - Soluciones en Refrigeración
 
-Bienvenido al repositorio oficial de la plataforma web de **FRIOTECX**, una empresa especializada en soluciones integrales de refrigeración y climatización con sede en **Maracay, Edo. Aragua**.
+Bienvenidos al repositorio de la plataforma web de **FRIOTECX**. Este proyecto nace como un emprendimiento familiar dedicado a ofrecer servicios técnicos de alta calidad en **Maracay, Edo. Aragua**.
 
-## 🚀 Sobre el Proyecto
-Esta web ha sido diseñada para ofrecer una experiencia de usuario fluida, permitiendo a nuestros clientes consultar servicios, verificar tasas de cambio en tiempo real (BCV) y contactarnos de forma inmediata a través de canales digitales.
+## 🛠️ Lo que hacemos
+En **FRIOTECX**, nos enfocamos en brindar soluciones rápidas y garantizadas para el hogar y el comercio:
+* **Aire Acondicionado:** Especialistas en mantenimiento e instalación de unidades de ventana (como equipos de 18000 BTU) y sistemas Split.
+* **Lavadoras:** Reparación y servicio técnico para lavadoras semiautomáticas de doble tina.
+* **Refrigeración General:** Diagnóstico y carga de gas refrigerante para mantener tus equipos en óptimo estado.
 
-### 🛠️ Áreas de Especialización
-No solo somos servicio técnico, somos expertos en:
-* **Climatización Residencial e Industrial:** Instalación, mantenimiento y reparación de equipos Split y de ventana (hasta 18000 BTU y más).
-* **Línea Blanca Especializada:** Servicio técnico profesional para lavadoras semiautomáticas de doble tina y sistemas de refrigeración doméstica.
-* **Mantenimiento Preventivo:** Planes diseñados para alargar la vida útil de tus equipos.
-
-## 💻 Tecnologías Utilizadas
-Para el desarrollo de esta interfaz, hemos implementado:
-* **HTML5 & CSS3:** Estructura y diseño con efectos visuales de "congelado" y partículas de nieve.
-* **JavaScript:** Lógica para el carrusel de trabajos realizados, menús interactivos y conexión con la API de DolarAPI para la tasa oficial.
-* **GitHub Pages:** Hosting gratuito y eficiente para despliegue continuo.
-
-## 📞 Contacto y Redes
-Estamos listos para atender tus consultas técnicas:
-* **WhatsApp:** [+58 424-3497259](https://wa.me/584243497259)
-* **Telegram:** [@utrera930](https://t.me/utrera930)
-* **Instagram:** [@friotecx](https://www.instagram.com/friotecx)
-* **Facebook:** [/friotecx](https://www.facebook.com/friotecx)
+## 📱 Conéctate con nosotros
+Hemos integrado herramientas digitales para facilitar la comunicación con nuestros clientes:
+* **Presupuestos Rápidos:** Botones directos a **WhatsApp** y **Telegram**.
+* **Transparencia:** Consulta de la tasa oficial **BCV** actualizada automáticamente en nuestra web.
+* **Redes Sociales:** Síguenos en Instagram y Facebook como **@friotecx**.
 
 ---
-*FRIOTECX - Calidad y Confianza en cada reparación.*
+*Ubicados en Maracay, Aragua. ¡Tu confort es nuestra prioridad!*
