@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRIOTECX | Refrigeración Profesional</title>
+    <link rel="icon" type="image/png" href="tu-logo-friotecx.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-blue: #00d4ff;
+            --frozen-white: #e0f7ff;
+            --dark-bg: #050a0f;
+            --panel-gradient: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+            --border-metal: rgba(122, 138, 153, 0.4);
+            --glass: rgba(15, 23, 42, 0.7);
+        }
+
+        body {
+            margin: 0; padding: 20px;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #fx-container {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 1000;
+        }
+
+        .snowflake {
+            position: absolute; background-color: white; border-radius: 50%;
+            opacity: 0.9; box-shadow: 0 0 8px 2px var(--frozen-white);
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
+
+        .main-frame {
+            width: 95%; max-width: 1100px;
+            background: var(--panel-gradient);
+            border: 4px solid var(--border-metal);
+            border-radius: 15px; padding: 15px;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 10px 40px rgba(0,0,0,0.6);
+            position: relative; z-index: 10;
+        }
+
+        .top-banner {
+            width: 100%; height: 300px;
+            border: 2px solid var(--neon-blue);
+            border-radius: 10px; position: relative; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 20px; background: #000;
+        }
+
+        .logo-central { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+
+        .dashboard-content {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 25px; 
+            border: 1px solid var(--border-metal); border-radius: 20px;
+        }
+
+        .buttons-column { display: flex; flex-direction: column; gap: 12px; position: relative; align-items: center; }
+        
+        .dropdown { position: relative; width: 100%; display: flex; justify-content: center; }
+
+        .dropbtn {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(180deg, #1e293b, #0f172a);
+            border: 1px solid #334155; padding: 12px 15px; font-size: 0.95rem; 
+            width: 90%; color: #fff; font-weight: bold; cursor: pointer;
+            border-radius: 8px; text-align: center;
+            text-transform: uppercase; letter-spacing: 2px;
+            transition: all 0.3s ease; outline: none;
+        }
+
+        .dropbtn.active { 
+            background: var(--neon-blue); 
+            color: #000; 
+            box-shadow: 0 0 20px var(--neon-blue); 
+        }
+
+        .dropdown-content {
+            display: none; position: absolute; background-color: #0b1a2a;
+            min-width: 280px; z-index: 2000;
+            border: 2px solid var(--neon-blue); 
+            border-radius: 8px; padding: 10px; 
+            left: 50%; transform: translateX(-50%);
+            top: 105%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            text-align: left;
+        }
+
+        .service-link {
+            display: block;
+            color: #ccc;
+            text-decoration: none;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: 0.2s;
+        }
+
+        .service-link:hover { background: rgba(0, 212, 255, 0.1); color: var(--neon-blue); padding-left: 15px; }
+
+        .social-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px; text-decoration: none; color: white;
+            font-size: 0.9rem; font-weight: 600; transition: 0.3s;
+        }
+
+        .social-item img { width: 22px; height: 22px; }
+        .social-item:hover { background: rgba(255,255,255,0.1); border-radius: 8px; }
+
+        .info-column { 
+            display: flex; flex-direction: column; justify-content: center; 
+            align-items: center; text-align: center; border-left: 1px solid rgba(255,255,255,0.1); 
+        }
+
+        h4 { font-family: 'Rajdhani', sans-serif; letter-spacing: 1.5px; color: var(--neon-blue); margin-bottom: 20px; font-size: 1rem; }
+
+        .contact-links-container { display: flex; flex-direction: column; gap: 12px; width: 100%; align-items: center; }
+
+        .contact-link {
+            text-decoration: none; font-weight: 600; font-size: 0.95rem;
+            transition: 0.3s; display: inline-flex; align-items: center;
+            gap: 12px; padding: 10px 20px; border-radius: 8px; width: 180px;
+        }
+
+        .contact-link img { width: 24px; height: 24px; }
+
+        .whatsapp-link { color: #25d366; border: 1px solid rgba(37, 211, 102, 0.3); }
+        .whatsapp-link:hover { background: rgba(37, 211, 102, 0.1); box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
+
+        .telegram-link { color: var(--neon-blue); border: 1px solid rgba(0, 212, 255, 0.3); }
+        .telegram-link:hover { background: rgba(0, 212, 255, 0.1); box-shadow: 0 0 15px rgba(0, 212, 255, 0.4); }
+
+        .tasa-box { 
+            margin-top: 25px; padding: 15px; 
+            background: rgba(255,255,255,0.03); 
+            border: 1px dashed var(--neon-blue); 
+            border-radius: 10px; width: 80%; 
+        }
+
+        .tasa-display { 
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.8rem; font-weight: bold; 
+            color: #fff; display: block; margin-top: 5px; 
+        }
+
+        .section-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; color: var(--neon-blue); letter-spacing: 2px; margin-top: 40px; text-transform: uppercase; text-align: center; }
+
+        /* CARRUSEL 1: TRABAJOS (HORIZONTAL) */
+        .carousel-container { 
+            width: 95%; max-width: 1100px; 
+            background: #000; border: 4px solid var(--border-metal); 
+            border-radius: 15px; margin-top: 15px; height: 450px; 
+            position: relative; z-index: 1; overflow: hidden;
+        }
+
+        /* CARRUSEL 2: CAPTURAS DE WHATSAPP */
+        .reviews-container { 
+            width: 95%; max-width: 420px; 
+            background: #0b111e; border: 3px solid var(--neon-blue); 
+            border-radius: 15px; margin-top: 15px; height: 560px; 
+            position: relative; z-index: 1; overflow: hidden;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.15);
+        }
+
+        .carousel-slide, .review-slide {
+            position: absolute; width: 100%; height: 100%;
+            opacity: 0; transition: opacity 1s ease-in-out;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .carousel-slide.active, .review-slide.active { opacity: 1; }
+        .carousel-slide img, .review-slide img { width: 100%; height: 100%; object-fit: contain; }
+        .review-slide img { padding: 10px; box-sizing: border-box; }
+
+        /* CAPAS DE ADMINISTRACIÓN COMPLETAMENTE ADAPTADAS */
+        .admin-trigger { 
+            margin-top: 70px; 
+            font-size: 0.75rem; 
+            color: rgba(255,255,255,0.15); 
+            cursor: pointer; 
+            text-decoration: underline; 
+            padding-bottom: 20px;
+            position: relative; 
+            z-index: 5000; 
+            display: inline-block; 
+        }
+
+        .admin-panel { 
+            display: none; 
+            width: 90%; 
+            max-width: 550px; 
+            background: #0f172a; 
+            border: 2px solid #ef4444; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-top: 20px; 
+            box-shadow: 0 0 30px rgba(239,68,68,0.25); 
+            box-sizing: border-box; 
+            position: relative;
+            z-index: 5001; 
+        }
+
+        .admin-panel h3 { color: #ef4444; margin-top: 0; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .admin-panel input, .admin-panel select, .admin-panel button { width: 100%; padding: 11px; margin: 8px 0; border-radius: 6px; border: 1px solid #334155; background: #020617; color: white; box-sizing: border-box; font-size: 0.9rem; }
+        .admin-panel button { background: #ef4444; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
+        .admin-panel button:hover { background: #dc2626; }
+        
+        /* Estilo especial para el input de archivos */
+        .admin-panel input[type="file"] {
+            background: #1e293b;
+            border: 1px dashed var(--neon-blue);
+            cursor: pointer;
+            padding: 15px;
+        }
+
+        .show { display: block !important; }
+
+        @media (max-width: 768px) { 
+            .dashboard-content { grid-template-columns: 1fr; } 
+            .info-column { border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; } 
+        }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <div id="fx-container"></div>
+
+    <div class="main-frame">
+        <div class="top-banner">
+            <img src="tu-logo-friotecx.png" alt="FRIOTECX" class="logo-central">
+        </div>
+
+        <div class="dashboard-content">
+            <div class="buttons-column">
+                <div class="dropdown">
+                    <button class="dropbtn" onclick="toggleMenu('menu-servicios', this)">☰ SERVICIOS</button>
+                    <div id="menu-servicios" class="dropdown-content">
+                        <a href="https://wa.me/584243497259?text=Buen%20día,%20¿en%20cuánto%20sale%20el%20mantenimiento%20preventivo?" target="_blank" class="service-link">• Mantenimiento preventivo</a>
+                        <a href="https://wa.me/584243497259?text=Buen%20día,%20necesito%20información%20sobre%20la%20recarga%20de%20gas" target="_blank" class="service-link">• Recarga de gas</a>
+                        <a href="https://wa.me/584243497259?text=Buen%20día,%20mi%20equipo%20tiene%20una%20fuga" target="_blank" class="service-link">• Detección de fugas</a>
+                        <a href="https://wa.me/584243497259?text=Buen%20día,%20presupuesto%20para%20cambio%20de%20compresor" target="_blank" class="service-link">• Cambio de compresores</a>
+                        <a href="https://wa.me/584243497259?text=Buen%20día,%20falla%20en%20tarjeta%20electrónica" target="_blank" class="service-link">• Reparación de tarjetas</a>
+                        <a href="https://wa.me/584243497259?text=Buen%20día,%20revisión%20de%20lavadora/secadora" target="_blank" class="service-link">• Lavadoras y Secadoras</a>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="dropbtn" onclick="toggleMenu('menu-instala', this)">🛠 INSTALACIÓN</button>
+                    <div id="menu-instala" class="dropdown-content">
+                        <a href="https://wa.me/584243497259?text=Hola,%20quisiera%20instalar%20un%20Split" target="_blank" class="service-link">• Aires tipo Split</a>
+                        <a href="https://wa.me/584243497259?text=Hola,%20quisiera%20instalar%20un%20aire%20de%20ventana" target="_blank" class="service-link">• Aires de Ventana</a>
+                        <a href="https://wa.me/584243497259?text=Hola,%20instalación%20equipo%20central" target="_blank" class="service-link">• Unidades Centrales</a>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="dropbtn" onclick="toggleMenu('menu-ubica', this)">📍 UBICACIÓN</button>
+                    <div id="menu-ubica" class="dropdown-content">
+                        <p style="padding: 10px; margin:0; font-size: 0.85rem;">Maracay, Edo. Aragua.<br>Servicio a domicilio.</p>
+                    </div>
+                </div>
+
+                <div class="dropdown">
+                    <button class="dropbtn" onclick="toggleMenu('menu-redes', this)">🌐 REDES SOCIALES</button>
+                    <div id="menu-redes" class="dropdown-content">
+                        <a href="https://www.instagram.com/friotecx" target="_blank" class="social-item">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="IG">
+                            Instagram
+                        </a>
+                        <a href="https://www.facebook.com/friotecx" target="_blank" class="social-item">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="FB">
+                            Facebook
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-column">
+                <h4>CONTACTO RÁPIDO</h4>
+                <div class="contact-links-container">
+                    <a href="https://wa.me/584243497259" target="_blank" class="contact-link whatsapp-link">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA"> WhatsApp
+                    </a>
+                    <a href="https://t.me/+584243497259" target="_blank" class="contact-link telegram-link">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="TG"> Telegram
+                    </a>
+                </div>
+                <div class="tasa-box">
+                    <span style="font-size: 0.7rem; letter-spacing: 1px; color: var(--neon-blue);">TASA OFICIAL BCV</span>
+                    <span id="tasa-display" class="tasa-display">--- BS</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">🛠️ NUESTROS TRABAJOS REALIZADOS</div>
+    <div class="carousel-container" id="contenedor-trabajos">
+        <div class="carousel-slide active"><img src="trabajo1.jpg"><div style="position: absolute; bottom: 0; background: rgba(0,0,0,0.8); width: 100%; padding: 12px; text-align: center; color: var(--neon-blue); font-family: 'Rajdhani'; font-weight: bold; font-size: 1.1rem;">TRABAJOS GARANTIZADOS</div></div>
+        <div class="carousel-slide"><img src="trabajo2.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo3.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo4.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo5.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo6.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo7.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo8.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo9.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo10.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo11.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo12.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo13.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo14.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo15.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo16.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo17.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo18.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo19.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo20.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo21.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo22.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo23.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo24.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo25.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo26.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo27.jpg"></div>
+        <div class="carousel-slide"><img src="trabajo28.jpg"></div>
+    </div>
+
+    <div class="section-title">💬 LO QUE DICEN NUESTROS CLIENTES</div>
+    <div class="reviews-container" id="contenedor-capturas">
+        <div class="review-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">Cargando opiniones de WhatsApp...</p></div>
+    </div>
+
+    <span class="admin-trigger" onclick="mostrarLoginAdmin()">Acceso de Administración Privado</span>
+
+    <div class="admin-panel" id="panel-admin">
+        <h3>🛡️ Panel de Control - FRIOTECX</h3>
+        
+        <div id="admin-auth-box">
+            <input type="email" id="admin-email" placeholder="Correo electrónico de Administrador">
+            <input type="password" id="admin-pass" placeholder="Contraseña secreta">
+            <button type="button" onclick="loginAdministrador()">Iniciar Sesión Seguro</button>
+        </div>
+
+        <div id="admin-actions-box" style="display: none;">
+            <p style="color: #22c55e; font-weight: bold; margin-top:0;">✓ Conexión establecida como Administrador</p>
+            
+            <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Publicar Capturas de WhatsApp</h4>
+            <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 8px 0;">Selecciona el archivo real directamente desde tu teléfono/computadora:</p>
+            <input type="file" id="upload-file-input" accept="image/*">
+            <button type="button" id="btn-publicar-auto" style="background: var(--neon-blue); color: black;" onclick="subirImagenAutomatica()">Publicar Captura al Instante</button>
+
+            <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Agregar Nuevo Servicio Dinámico</h4>
+            <input type="text" id="new-service-name" placeholder="Ej: • Reparación de Cavas Cuartos">
+            <input type="text" id="new-service-msg" placeholder="Mensaje de WhatsApp automático al hacer clic">
+            <select id="new-service-cat">
+                <option value="servicios">Sección: ☰ SERVICIOS</option>
+                <option value="instalacion">Sección: 🛠 INSTALACIÓN</option>
+            </select>
+            <button type="button" style="background: #22c55e; color: white;" onclick="agregarServicioFirebase()">Agregar Servicio al Menú</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN OFICIAL DE TU PROYECTO FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyASlKzy47oah2keUn-WB8aFJ1q5y7qYB08",
+            authDomain: "friotecx-web.firebaseapp.com",
+            projectId: "friotecx-web",
+            storageBucket: "friotecx-web.firebasestorage.app",
+            messagingSenderId: "106865037167",
+            appId: "1:106865037167:web:ffa366af163dbaeab7629a"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        // 💥 PON TU CLAVE DE IMGBB AQUÍ ADENTRO:
+        const IMGBB_API_KEY = "0a5e7954b4b9fed188e15e4e5532e57b";
+
+        // Rotación del Carrusel Local 1
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        function moveSlides() {
+            slides.forEach(s => s.classList.remove('active'));
+            slideIndex++;
+            if (slideIndex > slides.length) { slideIndex = 1 }
+            slides[slideIndex-1].classList.add('active');
+            setTimeout(moveSlides, 4500);
+        }
+        moveSlides();
+
+        // Rotación del Carrusel Dinámico 2
+        let reviewIndex = 0;
+        function moverCapturas() {
+            const revSlides = document.querySelectorAll('.review-slide');
+            if(revSlides.length > 1) {
+                revSlides.forEach(s => s.classList.remove('active'));
+                reviewIndex++;
+                if (reviewIndex > revSlides.length) { reviewIndex = 1 }
+                revSlides[reviewIndex-1].classList.add('active');
+            }
+            setTimeout(moverCapturas, 5500);
+        }
+
+        // Menús Desplegables
+        function toggleMenu(menuId, btn) {
+            const menus = document.querySelectorAll('.dropdown-content');
+            const btns = document.querySelectorAll('.dropbtn');
+            menus.forEach(m => { if(m.id !== menuId) m.classList.remove('show'); });
+            btns.forEach(b => { if(b !== btn) b.classList.remove('active'); });
+            document.getElementById(menuId).classList.toggle('show');
+            btn.classList.toggle('active');
+        }
+
+        window.onclick = function(e) {
+            if (!e.target.matches('.dropbtn')) {
+                document.querySelectorAll('.dropdown-content').forEach(m => m.classList.remove('show'));
+                document.querySelectorAll('.dropbtn').forEach(b => b.classList.remove('active'));
+            }
+        }
+
+        // Tasa BCV
+        async function actualizarTasa() {
+            try {
+                const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
+                const data = await res.json();
+                document.getElementById('tasa-display').innerText = `${data.promedio.toFixed(2)} BS`;
+            } catch (e) { document.getElementById('tasa-display').innerText = "--- BS"; }
+        }
+        actualizarTasa();
+
+        // Efecto Nieve
+        const fxContainer = document.getElementById('fx-container');
+        function crearCopo() {
+            const copo = document.createElement('div');
+            copo.classList.add('snowflake');
+            const tam = Math.random() * 3 + 2;
+            copo.style.width = tam + 'px'; copo.style.height = tam + 'px';
+            copo.style.left = Math.random() * 100 + 'vw';
+            const dur = Math.random() * 5 + 5;
+            copo.style.animationDuration = dur + 's';
+            fxContainer.appendChild(copo);
+            setTimeout(() => copo.remove(), dur * 1000);
+        }
+        setInterval(crearCopo, 500);
+
+        // FUNCIONES PANEL DE CONTROL PRIVADO
+        function mostrarLoginAdmin() { document.getElementById('panel-admin').classList.toggle('show'); }
+
+        function loginAdministrador() {
+            const email = document.getElementById('admin-email').value;
+            const pass = document.getElementById('admin-pass').value;
+            auth.signInWithEmailAndPassword(email, pass)
+                .then(() => {
+                    document.getElementById('admin-auth-box').style.display = 'none';
+                    document.getElementById('admin-actions-box').style.display = 'block';
+                })
+                .catch(err => alert("Acceso restringido: Credenciales inválidas."));
+        }
+
+        // NUEVA FUNCIÓN MAGNA: SUBIDA MAGICA AUTOMÁTICA
+        async function subirImagenAutomatica() {
+            const fileInput = document.getElementById('upload-file-input');
+            const boton = document.getElementById('btn-publicar-auto');
+            
+            if (fileInput.files.length === 0) {
+                return alert("Por favor, selecciona un archivo de imagen primero.");
+            }
+
+            if (IMGBB_API_KEY === "PEGA_AQUI_TU_API_KEY_DE_IMGBB" || !IMGBB_API_KEY) {
+                return alert("Error técnico: Olvidaste configurar tu API KEY de ImgBB en el código.");
+            }
+
+            const file = fileInput.files[0];
+            boton.innerText = "Subiendo a la nube de forma segura...";
+            boton.disabled = true;
+
+            // Formatear archivo para enviarlo a ImgBB
+            const formData = new FormData();
+            formData.append("image", file);
+
+            try {
+                // 1. Enviamos el archivo físico directo a ImgBB en segundo plano
+                const respuesta = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                    method: "POST",
+                    body: formData
+                });
+                
+                const resultadoJson = await respuesta.json();
+
+                if (resultadoJson.success) {
+                    const urlDirecta = resultadoJson.data.url; // El enlace .jpg real generado por la API
+
+                    // 2. Metemos de una vez la URL limpia en Firebase Firestore
+                    await db.collection("capturas").add({
+                        url: urlDirecta,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    alert("¡Imagen procesada y publicada automáticamente!");
+                    fileInput.value = ''; // Limpiar el selector de archivo
+                } else {
+                    alert("Error de ImgBB al procesar la imagen.");
+                }
+            } catch (error) {
+                alert("Error crítico en el proceso: " + error.message);
+            } finally {
+                boton.innerText = "Publicar Captura al Instante";
+                boton.disabled = false;
+            }
+        }
+
+        function agregarServicioFirebase() {
+            const name = document.getElementById('new-service-name').value;
+            const msg = document.getElementById('new-service-msg').value;
+            const cat = document.getElementById('new-service-cat').value;
+            if(!name || !msg) return alert("Por favor rellena los datos del servicio.");
+
+            db.collection("menus").add({
+                name: name,
+                msg: encodeURIComponent(msg),
+                category: cat
+            })
+            .then(() => { 
+                alert("Servicio inyectado en el menú correctamente."); 
+                document.getElementById('new-service-name').value = '';
+                document.getElementById('new-service-msg').value = '';
+            })
+            .catch(err => alert("Error: " + err.message));
+        }
+
+        // ESCUCHADORES EN TIEMPO REAL
+        function sincronizarFirebase() {
+            db.collection("capturas").orderBy("timestamp", "desc").onSnapshot(snap => {
+                const contenedor = document.getElementById('contenedor-capturas');
+                if(!snap.empty) {
+                    contenedor.innerHTML = '';
+                    snap.forEach((doc, i) => {
+                        contenedor.innerHTML += `<div class="review-slide ${i === 0 ? 'active' : ''}"><img src="${doc.data().url}"></div>`;
+                    });
+                }
+            });
+
+            db.collection("menus").onSnapshot(snap => {
+                if(!snap.empty) {
+                    const menuServ = document.getElementById('menu-servicios');
+                    const menuInst = document.getElementById('menu-instala');
+                    
+                    snap.forEach(doc => {
+                        const d = doc.data();
+                        const elementoId = "dyn-" + doc.id;
+                        if(!document.getElementById(elementoId)) {
+                            const nLink = document.createElement('a');
+                            nLink.id = elementoId;
+                            nLink.href = `https://wa.me/584243497259?text=${d.msg}`;
+                            nLink.target = "_blank";
+                            nLink.className = "service-link";
+                            nLink.innerText = d.name;
+                            
+                            if(d.category === 'servicios') menuServ.appendChild(nLink);
+                            else menuInst.appendChild(nLink);
+                        }
+                    });
+                }
+            });
+        }
+        
+        sincronizarFirebase();
+        setTimeout(moverCapturas, 2000);
+    </script>
+</body>
+</html>
