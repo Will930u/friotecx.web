@@ -209,7 +209,7 @@
         
         .admin-panel input[type="file"] { background: #1e293b; border: 1px dashed var(--neon-blue); cursor: pointer; padding: 12px; }
 
-        /* CREADOR DE VIDEOS INTEGRADO */
+        /* CREADOR DE VIDEOS OPTIMIZADO LOCAL */
         .video-maker-box {
             background: #0b1329; border: 1px dashed var(--neon-blue);
             border-radius: 10px; padding: 15px; margin-top: 20px;
@@ -357,14 +357,11 @@
             <button type="button" id="btn-publicar-auto" style="background: var(--neon-blue); color: black;" onclick="subirImagenesMultiples()">Subir y Publicar al Instante</button>
 
             <div class="video-maker-box">
-                <h4 style="color: #22c55e; margin-top:0; margin-bottom:10px;">🎬 Creador de Videos para Redes (Reels / TikTok)</h4>
-                <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 10px 0;">Arma un video vertical con música y tus fotos al instante para descargarlo gratis.</p>
+                <h4 style="color: #22c55e; margin-top:0; margin-bottom:10px;">🎬 Creador de Reels / TikTok Express</h4>
+                <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 10px 0;">Crea un video vertical uniendo tus fotos al instante. (Ponle tu música favorita directo desde los estados de WhatsApp, Instagram o TikTok al subirlo).</p>
                 
-                <label style="font-size:0.8rem; color:#cbd5e1;">1. Selecciona las fotos del video:</label>
+                <label style="font-size:0.8rem; color:#cbd5e1;">1. Selecciona las fotos para tu video:</label>
                 <input type="file" id="maker-photos" accept="image/*" multiple>
-                
-                <label style="font-size:0.8rem; color:#cbd5e1; margin-top:5px; display:block;">2. Sube la música (.mp3):</label>
-                <input type="file" id="maker-audio" accept="audio/mp3, audio/*">
 
                 <div class="video-control-row">
                     <div>
@@ -374,14 +371,14 @@
                     <div>
                         <label style="font-size:0.75rem; color:#94a3b8;">Ajuste de Marca:</label>
                         <select id="maker-watermark" style="padding:6px; margin:4px 0;">
-                            <option value="si">Con Logo de FRIOTECX</option>
-                            <option value="no">Sin Logo (Limpio)</option>
+                            <option value="si">Con Marca de Agua FRIOTECX</option>
+                            <option value="no">Limpio (Sin Texto)</option>
                         </select>
                     </div>
                 </div>
 
                 <canvas id="canvas-render" class="maker-preview-canvas" width="720" height="1280"></canvas>
-                <button type="button" id="btn-render-video" style="background: #22c55e; color: black; font-weight: bold; margin-top:10px;" onclick="procesarYCrearVideo()">⚡ Procesar y Descargar MP4</button>
+                <button type="button" id="btn-render-video" style="background: #22c55e; color: black; font-weight: bold; margin-top:10px;" onclick="procesarYCrearVideo()">⚡ Descargar Video (.mp4)</button>
             </div>
 
             <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Fotos de Trabajos:</p>
@@ -491,7 +488,6 @@
                 .catch(err => alert("Acceso denegado."));
         }
 
-        // 1. SUBIDA MULTIPLE DE IMÁGENES (CORREGIDO)
         async function subirImagenesMultiples() {
             const fileInput = document.getElementById('upload-file-input');
             const destino = document.getElementById('upload-destination').value;
@@ -533,19 +529,17 @@
             boton.disabled = false;
         }
 
-        // 2. MOTOR CREADOR DE VIDEOS (CARRUSEL + AUDIO ANTIBLOQUEO CORREGIDO)
+        // MOTOR REESCRITO DESDE CERO: PROCESADO LOCAL DIRECTO SIN TRABAS DE AUDIO
         async function procesarYCrearVideo() {
             const photoInput = document.getElementById('maker-photos');
-            const audioInput = document.getElementById('maker-audio');
             const secPorFoto = parseInt(document.getElementById('maker-duration').value) || 3;
             const conLogo = document.getElementById('maker-watermark').value;
             const btn = document.getElementById('btn-render-video');
 
-            if (photoInput.files.length === 0) return alert("Selecciona al menos una foto para el video.");
-            if (audioInput.files.length === 0) return alert("Por favor, sube un archivo de música (.mp3).");
+            if (photoInput.files.length === 0) return alert("Selecciona al menos una foto para armar el video.");
 
             btn.disabled = true;
-            btn.innerText = "Fabricando Video (Espera un momento)...";
+            btn.innerText = "Procesando Video Local...";
 
             const canvas = document.getElementById('canvas-render');
             const ctx = canvas.getContext('2d');
@@ -568,49 +562,9 @@
             }
 
             const totalDuracionVideo = imagenes.length * secPorFoto;
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const canvasStream = canvas.captureStream(30); 
             
-            const cargarAudioSeguro = file => new Promise((res, rej) => {
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    try {
-                        const buffer = await audioCtx.decodeAudioData(e.target.result);
-                        res(buffer);
-                    } catch(err) { rej(err); }
-                };
-                reader.readAsArrayBuffer(file);
-            });
-
-            let audioBuffer;
-            try {
-                audioBuffer = await cargarAudioSeguro(audioInput.files[0]);
-            } catch (err) {
-                alert("Error al procesar el archivo de música. Intenta con otro .mp3");
-                btn.disabled = false;
-                btn.innerText = "⚡ Procesar y Descargar MP4";
-                canvas.style.display = "none";
-                return;
-            }
-
-            const mediaStreamDest = audioCtx.createMediaStreamDestination();
-            const sourceNode = audioCtx.createBufferSource();
-            sourceNode.buffer = bufferAcortado(audioBuffer, audioCtx, totalDuracionVideo);
-
-            const gainNode = audioCtx.createGain();
-            gainNode.gain.setValueAtTime(1, 0);
-            gainNode.gain.linearRampToValueAtTime(0, totalDuracionVideo);
-
-            sourceNode.connect(gainNode);
-            gainNode.connect(mediaStreamDest);
-
-            const canvasStream = canvas.captureStream(30);
-            
-            const combinedStream = new MediaStream([
-                canvasStream.getVideoTracks()[0],
-                mediaStreamDest.getAudioTracks()[0]
-            ]);
-
-            const recorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm;codecs=vp8,opus' });
+            const recorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm;codecs=vp8' });
             const chunks = [];
             recorder.ondataavailable = e => chunks.push(e.data);
             
@@ -619,19 +573,16 @@
                 const urlDescarga = URL.createObjectURL(blobVideo);
                 const a = document.createElement('a');
                 a.href = urlDescarga;
-                a.download = `FRIOTECX_Video_${Date.now()}.mp4`;
+                a.download = `FRIOTECX_Reel_${Date.now()}.mp4`;
                 a.click();
 
                 canvas.style.display = "none";
                 btn.disabled = false;
-                btn.innerText = "⚡ Procesar y Descargar MP4";
-                alert("¡Video generado con éxito! Ya se descargó a tus archivos.");
-                audioCtx.close();
+                btn.innerText = "⚡ Descargar Video (.mp4)";
+                alert("¡Video generado y guardado en tu dispositivo con éxito!");
             };
 
             recorder.start();
-            sourceNode.start(0);
-
             let tiempoInicio = Date.now();
             
             function dibujarFotograma() {
@@ -639,7 +590,6 @@
                 
                 if (tiempoTranscurrido >= totalDuracionVideo) {
                     recorder.stop();
-                    sourceNode.stop();
                     return;
                 }
 
@@ -677,22 +627,6 @@
             }
 
             requestAnimationFrame(dibujarFotograma);
-        }
-
-        function bufferAcortado(audioBuffer, audioCtx, duracionMax) {
-            const numCanales = audioBuffer.numberOfChannels;
-            const tasaMuestreo = audioBuffer.sampleRate;
-            const totalFotogramas = tasaMuestreo * duracionMax;
-            const nuevoBuffer = audioCtx.createBuffer(numCanales, totalFotogramas, tasaMuestreo);
-            
-            for (let canal = 0; canal < numCanales; canal++) {
-                const canalOriginal = audioBuffer.getChannelData(canal);
-                const nuevoCanal = nuevoBuffer.getChannelData(canal);
-                for (let i = 0; i < totalFotogramas; i++) {
-                    nuevoCanal[i] = i < canalOriginal.length ? canalOriginal[i] : 0;
-                }
-            }
-            return nuevoBuffer;
         }
 
         function agregarServicioFirebase() {
