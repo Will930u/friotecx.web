@@ -491,22 +491,28 @@
                 .catch(err => alert("Acceso denegado."));
         }
 
+        // 1. SUBIDA MULTIPLE DE IMÁGENES (CORREGIDO)
         async function subirImagenesMultiples() {
             const fileInput = document.getElementById('upload-file-input');
             const destino = document.getElementById('upload-destination').value;
             const boton = document.getElementById('btn-publicar-auto');
 
             if (fileInput.files.length === 0) return alert("Por favor, selecciona al menos una foto.");
-            const archivos = fileInput.files; const totalArchivos = archivos.length;
+            const archivos = fileInput.files; 
+            const totalArchivos = archivos.length;
             boton.disabled = true;
 
             for (let i = 0; i < totalArchivos; i++) {
                 const file = archivos[i];
                 boton.innerText = `Subiendo ${i + 1} de ${totalArchivos}...`;
-                const formData = new FormData(); formData.append("image", file);
+                const formData = new FormData(); 
+                formData.append("image", file);
 
                 try {
-                    const respuesta = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
+                    const respuesta = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { 
+                        method: "POST", 
+                        body: formData 
+                    });
                     const resultadoJson = await respuesta.json();
 
                     if (resultadoJson.success) {
@@ -515,14 +521,19 @@
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     }
-                } catch (error) { alert(`Error en archivo ${file.name}: ${error.message}`); }
+                } catch (error) { 
+                    console.error(error);
+                    alert(`Error en archivo ${file.name}: ${error.message}`); 
+                }
             }
 
-            alert(`¡Completado! Se publicaron ${totalArchivos} fotos.`);
-            fileInput.value = ''; boton.innerText = "Subir y Publicar al Instante"; boton.disabled = false;
+            alert(`¡Completado! Se publicaron ${totalArchivos} fotos en tu web.`);
+            fileInput.value = ''; 
+            boton.innerText = "Subir y Publicar al Instante"; 
+            boton.disabled = false;
         }
 
-        // 🎬 LÓGICA DEL MOTOR DE VIDEO INTERNO (CARRUSEL + MÚSICA CON FADE OUT)
+        // 2. MOTOR CREADOR DE VIDEOS (CARRUSEL + AUDIO ANTIBLOQUEO CORREGIDO)
         async function procesarYCrearVideo() {
             const photoInput = document.getElementById('maker-photos');
             const audioInput = document.getElementById('maker-audio');
@@ -538,12 +549,15 @@
 
             const canvas = document.getElementById('canvas-render');
             const ctx = canvas.getContext('2d');
-            canvas.style.display = "block"; // Mostrar previsualización
+            canvas.style.display = "block"; 
 
-            // Cargar todos los archivos de imagen en memoria
             const cargarImagen = file => new Promise((res) => {
                 const reader = new FileReader();
-                reader.onload = e => { const img = new Image(); img.onload = () => res(img); img.src = e.target.result; };
+                reader.onload = e => { 
+                    const img = new Image(); 
+                    img.onload = () => res(img); 
+                    img.src = e.target.result; 
+                };
                 reader.readAsDataURL(file);
             });
 
@@ -553,29 +567,44 @@
                 imagenes.push(imgCargada);
             }
 
-            // Cargar el audio usando AudioContext para procesar el Fade Out final
-            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const audioFile = audioInput.files[0];
-            const audioBuffer = await audioFile.arrayBuffer().then(buf => audioCtx.decodeAudioData(buf));
-
             const totalDuracionVideo = imagenes.length * secPorFoto;
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            const cargarAudioSeguro = file => new Promise((res, rej) => {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const buffer = await audioCtx.decodeAudioData(e.target.result);
+                        res(buffer);
+                    } catch(err) { rej(err); }
+                };
+                reader.readAsArrayBuffer(file);
+            });
 
-            // Configurar destino del audio y el efecto desvanecer (Fade Out)
+            let audioBuffer;
+            try {
+                audioBuffer = await cargarAudioSeguro(audioInput.files[0]);
+            } catch (err) {
+                alert("Error al procesar el archivo de música. Intenta con otro .mp3");
+                btn.disabled = false;
+                btn.innerText = "⚡ Procesar y Descargar MP4";
+                canvas.style.display = "none";
+                return;
+            }
+
             const mediaStreamDest = audioCtx.createMediaStreamDestination();
             const sourceNode = audioCtx.createBufferSource();
             sourceNode.buffer = bufferAcortado(audioBuffer, audioCtx, totalDuracionVideo);
 
             const gainNode = audioCtx.createGain();
             gainNode.gain.setValueAtTime(1, 0);
-            // El desvanecimiento empieza 1.5 segundos antes de terminar el video
-            gainNode.gain.linearRampToValueAtTime(0, totalDuracionVideo); 
+            gainNode.gain.linearRampToValueAtTime(0, totalDuracionVideo);
 
             sourceNode.connect(gainNode);
             gainNode.connect(mediaStreamDest);
 
-            // Preparar captura de la pantalla invisible (Canvas) a 30 FPS
             const canvasStream = canvas.captureStream(30);
-            // Fusionar video de canvas y audio procesado con Fade-Out
+            
             const combinedStream = new MediaStream([
                 canvasStream.getVideoTracks()[0],
                 mediaStreamDest.getAudioTracks()[0]
@@ -590,17 +619,16 @@
                 const urlDescarga = URL.createObjectURL(blobVideo);
                 const a = document.createElement('a');
                 a.href = urlDescarga;
-                a.download = `FRIOTECX_Trabajos_${Date.now()}.mp4`;
+                a.download = `FRIOTECX_Video_${Date.now()}.mp4`;
                 a.click();
 
                 canvas.style.display = "none";
                 btn.disabled = false;
                 btn.innerText = "⚡ Procesar y Descargar MP4";
-                alert("¡Video generado y descargado con éxito! Listo para tus redes.");
+                alert("¡Video generado con éxito! Ya se descargó a tus archivos.");
                 audioCtx.close();
             };
 
-            // Iniciar grabación y reproducción de audio sincronizada
             recorder.start();
             sourceNode.start(0);
 
@@ -608,22 +636,20 @@
             
             function dibujarFotograma() {
                 let tiempoTranscurrido = (Date.now() - tiempoInicio) / 1000;
+                
                 if (tiempoTranscurrido >= totalDuracionVideo) {
                     recorder.stop();
                     sourceNode.stop();
                     return;
                 }
 
-                // Averiguar qué imagen corresponde según el segundo actual
                 let fotoActualIndex = Math.floor(tiempoTranscurrido / secPorFoto);
                 if (fotoActualIndex >= imagenes.length) fotoActualIndex = imagenes.length - 1;
                 const img = imagenes[fotoActualIndex];
 
-                // Limpiar fondo a negro (Formato Vertical 720x1280)
                 ctx.fillStyle = "#050a0f";
                 ctx.fillRect(0, 0, 720, 1280);
 
-                // Dibujar imagen centrada y escalada (Ajuste proporcional)
                 let hRatio = canvas.width / img.width;
                 let vRatio = canvas.height / img.height;
                 let ratio = Math.min(hRatio, vRatio);
@@ -631,18 +657,20 @@
                 let centerShift_y = (canvas.height - img.height * ratio) / 2;
                 ctx.drawImage(img, 0, 0, img.width, img.height, centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);
 
-                // Agregar marca de agua estilizada de FRIOTECX si está activo
                 if (conLogo === "si") {
-                    ctx.fillStyle = "rgba(0, 212, 255, 0.15)";
-                    ctx.fillRect(40, 1160, 640, 70);
+                    ctx.fillStyle = "rgba(5, 10, 15, 0.75)";
+                    ctx.fillRect(0, 1140, 720, 140);
+                    
+                    ctx.fillStyle = "rgba(0, 212, 255, 0.2)";
+                    ctx.fillRect(40, 1170, 640, 70);
                     ctx.strokeStyle = "#00d4ff";
                     ctx.lineWidth = 2;
-                    ctx.strokeRect(40, 1160, 640, 70);
+                    ctx.strokeRect(40, 1170, 640, 70);
 
                     ctx.fillStyle = "#ffffff";
-                    ctx.font = "bold 32px Rajdhani, sans-serif";
+                    ctx.font = "bold 28px 'Rajdhani', sans-serif";
                     ctx.textAlign = "center";
-                    ctx.fillText("❄️ FRIOTECX | REFRIGERACIÓN PROFESIONAL", 360, 1205);
+                    ctx.fillText("❄️ FRIOTECX | REFRIGERACIÓN PROFESIONAL", 360, 1212);
                 }
 
                 requestAnimationFrame(dibujarFotograma);
@@ -651,7 +679,6 @@
             requestAnimationFrame(dibujarFotograma);
         }
 
-        // Cortar el audio exactamente al tiempo del video para evitar desfases
         function bufferAcortado(audioBuffer, audioCtx, duracionMax) {
             const numCanales = audioBuffer.numberOfChannels;
             const tasaMuestreo = audioBuffer.sampleRate;
