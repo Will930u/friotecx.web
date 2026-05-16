@@ -341,13 +341,15 @@
             <p style="color: #22c55e; font-weight: bold; margin-top:0;">✓ Conexión establecida</p>
             
             <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Cargar Nuevas Fotografías</h4>
-            <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 8px 0;">Selecciona el archivo y define a dónde enviarlo:</p>
-            <input type="file" id="upload-file-input" accept="image/*">
+            <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 8px 0;">Selecciona una o varias fotos y define su destino:</p>
+            
+            <input type="file" id="upload-file-input" accept="image/*" multiple>
+            
             <select id="upload-destination">
                 <option value="trabajos">Destino: Carrusel de Trabajos Realizados</option>
                 <option value="capturas">Destino: Carrusel de Opiniones (WhatsApp)</option>
             </select>
-            <button type="button" id="btn-publicar-auto" style="background: var(--neon-blue); color: black;" onclick="subirImagenGlobal()">Subir y Publicar al Instante</button>
+            <button type="button" id="btn-publicar-auto" style="background: var(--neon-blue); color: black;" onclick="subirImagenesMultiples()">Subir y Publicar al Instante</button>
 
             <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Fotos de Trabajos:</p>
             <div class="manager-container" id="lista-borrar-trabajos">
@@ -390,7 +392,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // 💥 TU CLAVE DE IMGBB TOTALMENTE CONFIGURADA AQUÍ:
+        // 💥 CLAVE DE IMGBB TOTALMENTE CONFIGURADA Y REUBICADA
         const IMGBB_API_KEY = "0a5e7954b4b9fed188e15e4e5532e57b";
 
         // Variables de Control para los tiempos de los carruseles
@@ -471,44 +473,54 @@
                 .catch(err => alert("Acceso denegado."));
         }
 
-        // SUBIDA CENTRALIZADA INTELIGENTE CORREGIDA
-        async function subirImagenGlobal() {
+        // NUEVA FUNCIÓN OPTIMIZADA PARA PROCESAR MÚLTIPLES IMÁGENES
+        async function subirImagenesMultiples() {
             const fileInput = document.getElementById('upload-file-input');
             const destino = document.getElementById('upload-destination').value;
             const boton = document.getElementById('btn-publicar-auto');
 
-            if (fileInput.files.length === 0) return alert("Por favor, selecciona una foto.");
+            if (fileInput.files.length === 0) return alert("Por favor, selecciona al menos una foto.");
             
-            // LA VALIDACIÓN DE ERROR AHORA ESTÁ LIMPIA E IDEAL
             if (IMGBB_API_KEY === "PEGA_AQUI_TU_API_KEY_DE_IMGBB" || !IMGBB_API_KEY) {
                 return alert("Falta configurar la API Key de ImgBB.");
             }
 
-            const file = fileInput.files[0];
-            boton.innerText = "Procesando subida...";
+            const archivos = fileInput.files;
+            const totalArchivos = archivos.length;
             boton.disabled = true;
 
-            const formData = new FormData();
-            formData.append("image", file);
+            // Bucle secuencial para procesar archivo por archivo
+            for (let i = 0; i < totalArchivos; i++) {
+                const file = archivos[i];
+                boton.innerText = `Subiendo ${i + 1} de ${totalArchivos}...`;
 
-            try {
-                const respuesta = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
-                const resultadoJson = await respuesta.json();
+                const formData = new FormData();
+                formData.append("image", file);
 
-                if (resultadoJson.success) {
-                    const urlLimpia = resultadoJson.data.url;
+                try {
+                    const respuesta = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
+                    const resultadoJson = await respuesta.json();
 
-                    // Guarda en la colección de Firebase elegida por el selector
-                    await db.collection(destino).add({
-                        url: urlLimpia,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    if (resultadoJson.success) {
+                        const urlLimpia = resultadoJson.data.url;
 
-                    alert("¡Imagen publicada con éxito en el sitio!");
-                    fileInput.value = '';
+                        // Guarda el documento en la colección asignada
+                        await db.collection(destino).add({
+                            url: urlLimpia,
+                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    } else {
+                        alert(`No se pudo subir el archivo: ${file.name}`);
+                    }
+                } catch (error) {
+                    alert(`Error en el archivo ${file.name}: ${error.message}`);
                 }
-            } catch (error) { alert("Error crítico: " + error.message); }
-            finally { boton.innerText = "Subir y Publicar al Instante"; boton.disabled = false; }
+            }
+
+            alert(`¡Proceso completado! Se publicaron ${totalArchivos} fotos con éxito.`);
+            fileInput.value = '';
+            boton.innerText = "Subir y Publicar al Instante";
+            boton.disabled = false;
         }
 
         function agregarServicioFirebase() {
@@ -590,7 +602,6 @@
                 const menuInst = document.getElementById('menu-instala');
                 const listaBorrarServ = document.getElementById('lista-borrar-servicios');
                 
-                // Limpiar solo los dinámicos de los menús públicos, manteniendo los primeros estáticos
                 document.querySelectorAll('.dynamic-service').forEach(el => el.remove());
                 listaBorrarServ.innerHTML = '';
 
@@ -598,7 +609,6 @@
                     snap.forEach(doc => {
                         const d = doc.data();
                         
-                        // Agregar al menú público correspondiente
                         const nLink = document.createElement('a');
                         nLink.href = `https://wa.me/584243497259?text=${d.msg}`;
                         nLink.target = "_blank";
@@ -608,7 +618,6 @@
                         if(d.category === 'servicios') menuServ.appendChild(nLink);
                         else menuInst.appendChild(nLink);
 
-                        // Agregar a la lista de borrado de administración
                         listaBorrarServ.innerHTML += `
                             <div class="manager-item">
                                 <span>${d.name} (${d.category === 'servicios' ? 'Serv.' : 'Inst.'})</span>
