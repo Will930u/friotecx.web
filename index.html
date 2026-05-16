@@ -390,7 +390,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // 💥 TU CLAVE DE IMGBB AQUÍ:
+        // 💥 TU CLAVE DE IMGBB TOTALMENTE CONFIGURADA AQUÍ:
         const IMGBB_API_KEY = "0a5e7954b4b9fed188e15e4e5532e57b";
 
         // Variables de Control para los tiempos de los carruseles
@@ -471,14 +471,18 @@
                 .catch(err => alert("Acceso denegado."));
         }
 
-        // SUBIDA CENTRALIZADA INTELIGENTE
+        // SUBIDA CENTRALIZADA INTELIGENTE CORREGIDA
         async function subirImagenGlobal() {
             const fileInput = document.getElementById('upload-file-input');
             const destino = document.getElementById('upload-destination').value;
             const boton = document.getElementById('btn-publicar-auto');
 
             if (fileInput.files.length === 0) return alert("Por favor, selecciona una foto.");
-            if (IMGBB_API_KEY === "0a5e7954b4b9fed188e15e4e5532e57b" || !IMGBB_API_KEY) return alert("Falta configurar la API Key de ImgBB.");
+            
+            // LA VALIDACIÓN DE ERROR AHORA ESTÁ LIMPIA E IDEAL
+            if (IMGBB_API_KEY === "PEGA_AQUI_TU_API_KEY_DE_IMGBB" || !IMGBB_API_KEY) {
+                return alert("Falta configurar la API Key de ImgBB.");
+            }
 
             const file = fileInput.files[0];
             boton.innerText = "Procesando subida...";
