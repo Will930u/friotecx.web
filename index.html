@@ -209,7 +209,7 @@
         
         .admin-panel input[type="file"] { background: #1e293b; border: 1px dashed var(--neon-blue); cursor: pointer; padding: 12px; }
 
-        /* CREADOR DE VIDEOS OPTIMIZADO LOCAL */
+        /* CREADOR DE VIDEOS AVANZADO MULTIEFECTOS */
         .video-maker-box {
             background: #0b1329; border: 1px dashed var(--neon-blue);
             border-radius: 10px; padding: 15px; margin-top: 20px;
@@ -357,11 +357,23 @@
             <button type="button" id="btn-publicar-auto" style="background: var(--neon-blue); color: black;" onclick="subirImagenesMultiples()">Subir y Publicar al Instante</button>
 
             <div class="video-maker-box">
-                <h4 style="color: #22c55e; margin-top:0; margin-bottom:10px;">🎬 Creador de Reels / TikTok Express</h4>
-                <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 10px 0;">Crea un video vertical uniendo tus fotos al instante. (Ponle tu música favorita directo desde los estados de WhatsApp, Instagram o TikTok al subirlo).</p>
+                <h4 style="color: #22c55e; margin-top:0; margin-bottom:10px;">🎬 Reel Studio Pro (Transiciones + Audio Sincro)</h4>
+                <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 10px 0;">Crea videos dinámicos con música de fondo. El audio se adaptará solo y se desvanecerá al finalizar el video automáticamente.</p>
                 
-                <label style="font-size:0.8rem; color:#cbd5e1;">1. Selecciona las fotos para tu video:</label>
+                <label style="font-size:0.8rem; color:#cbd5e1;">1. Selecciona las fotos:</label>
                 <input type="file" id="maker-photos" accept="image/*" multiple>
+                
+                <label style="font-size:0.8rem; color:#cbd5e1; margin-top:5px; display:block;">2. Elige el estilo de Transición / Efecto:</label>
+                <select id="maker-effect" style="padding:6px; margin:4px 0;">
+                    <option value="fade">Efecto 1: Desvanecimiento Cruzado (Suave)</option>
+                    <option value="zoom">Efecto 2: Zoom Dinámico (Enfoque Kinetic)</option>
+                    <option value="slide">Efecto 3: Desplazamiento Lateral (Cine)</option>
+                    <option value="flash">Efecto 4: Destello de Luz (Estilo Reel)</option>
+                    <option value="none">Efecto 5: Corte Directo (Clásico)</option>
+                </select>
+
+                <label style="font-size:0.8rem; color:#cbd5e1; margin-top:5px; display:block;">3. Sube la música (.mp3) - Opcional:</label>
+                <input type="file" id="maker-audio" accept="audio/mp3, audio/*">
 
                 <div class="video-control-row">
                     <div>
@@ -371,14 +383,16 @@
                     <div>
                         <label style="font-size:0.75rem; color:#94a3b8;">Ajuste de Marca:</label>
                         <select id="maker-watermark" style="padding:6px; margin:4px 0;">
-                            <option value="si">Con Marca de Agua FRIOTECX</option>
-                            <option value="no">Limpio (Sin Texto)</option>
+                            <option value="si">Con Logo FRIOTECX</option>
+                            <option value="no">Sin Logo (Limpio)</option>
                         </select>
                     </div>
                 </div>
 
                 <canvas id="canvas-render" class="maker-preview-canvas" width="720" height="1280"></canvas>
-                <button type="button" id="btn-render-video" style="background: #22c55e; color: black; font-weight: bold; margin-top:10px;" onclick="procesarYCrearVideo()">⚡ Descargar Video (.mp4)</button>
+                <audio id="audio-player-hidden" style="display:none;" crossorigin="anonymous"></audio>
+
+                <button type="button" id="btn-render-video" style="background: #22c55e; color: black; font-weight: bold; margin-top:10px;" onclick="procesarYCrearVideo()">⚡ Procesar y Descargar MP4</button>
             </div>
 
             <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Fotos de Trabajos:</p>
@@ -529,17 +543,22 @@
             boton.disabled = false;
         }
 
-        // MOTOR REESCRITO DESDE CERO: PROCESADO LOCAL DIRECTO SIN TRABAS DE AUDIO
+        // ================================================================
+        // ENGINE AVANZADO DE RENDER: MULTIEFECTOS Y CAPTURA DE AUDIO FIEL
+        // ================================================================
         async function procesarYCrearVideo() {
             const photoInput = document.getElementById('maker-photos');
+            const audioInput = document.getElementById('maker-audio');
+            const efectoSeleccionado = document.getElementById('maker-effect').value;
             const secPorFoto = parseInt(document.getElementById('maker-duration').value) || 3;
             const conLogo = document.getElementById('maker-watermark').value;
             const btn = document.getElementById('btn-render-video');
+            const audioPlayer = document.getElementById('audio-player-hidden');
 
             if (photoInput.files.length === 0) return alert("Selecciona al menos una foto para armar el video.");
 
             btn.disabled = true;
-            btn.innerText = "Procesando Video Local...";
+            btn.innerText = "Fabricando Reel Cinematográfico...";
 
             const canvas = document.getElementById('canvas-render');
             const ctx = canvas.getContext('2d');
@@ -562,24 +581,55 @@
             }
 
             const totalDuracionVideo = imagenes.length * secPorFoto;
+            
+            // Configurar canales combinados de captura estables
+            const tracksDeCaptura = [];
             const canvasStream = canvas.captureStream(30); 
-            
-            const recorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm;codecs=vp8' });
+            tracksDeCaptura.push(canvasStream.getVideoTracks()[0]);
+
+            let tieneAudio = false;
+            if (audioInput.files.length > 0) {
+                const archivoAudio = audioInput.files[0];
+                audioPlayer.src = URL.createObjectURL(archivoAudio);
+                audioPlayer.volume = 1.0;
+                
+                // Forzar inicio del reproductor nativo
+                audioPlayer.play();
+                
+                // Capturar pista de sonido limpia del elemento HTML5 sin riesgo de CORS
+                const ctxAudioNativo = new (window.AudioContext || window.webkitAudioContext)();
+                const fuenteOrigen = ctxAudioNativo.createMediaElementSource(audioPlayer);
+                const destinoFlujo = ctxAudioNativo.createMediaStreamDestination();
+                
+                fuenteOrigen.connect(destinoFlujo);
+                fuenteOrigen.connect(ctxAudioNativo.destination); // Para que se escuche mientras renderiza
+                
+                tracksDeCaptura.push(destinoFlujo.getStream().getAudioTracks()[0]);
+                tieneAudio = true;
+            }
+
+            const streamCombinadoFinal = new MediaStream(tracksDeCaptura);
+            const recorder = new MediaRecorder(streamCombinadoFinal, { mimeType: 'video/webm;codecs=vp8,opus' });
             const chunks = [];
-            recorder.ondataavailable = e => chunks.push(e.data);
             
+            recorder.ondataavailable = e => chunks.push(e.data);
             recorder.onstop = () => {
+                if(tieneAudio) {
+                    audioPlayer.pause();
+                    audioPlayer.src = "";
+                }
+
                 const blobVideo = new Blob(chunks, { type: 'video/mp4' });
                 const urlDescarga = URL.createObjectURL(blobVideo);
                 const a = document.createElement('a');
                 a.href = urlDescarga;
-                a.download = `FRIOTECX_Reel_${Date.now()}.mp4`;
+                a.download = `FRIOTECX_Studio_Reel_${Date.now()}.mp4`;
                 a.click();
 
                 canvas.style.display = "none";
                 btn.disabled = false;
-                btn.innerText = "⚡ Descargar Video (.mp4)";
-                alert("¡Video generado y guardado en tu dispositivo con éxito!");
+                btn.innerText = "⚡ Procesar y Descargar MP4";
+                alert("¡Video cinematográfico descargado con éxito!");
             };
 
             recorder.start();
@@ -593,20 +643,78 @@
                     return;
                 }
 
+                // Sistema inteligente de rampa automática para el Fade Out del audio
+                if (tieneAudio && tiempoTranscurrido >= (totalDuracionVideo - 2)) {
+                    let tiempoRestante = totalDuracionVideo - tiempoTranscurrido; 
+                    audioPlayer.volume = Math.max(0, tiempoRestante / 2); // Baja el volumen linealmente los últimos 2 segundos
+                }
+
+                // Cálculo de transiciones
                 let fotoActualIndex = Math.floor(tiempoTranscurrido / secPorFoto);
                 if (fotoActualIndex >= imagenes.length) fotoActualIndex = imagenes.length - 1;
-                const img = imagenes[fotoActualIndex];
+                
+                let imgActual = imagenes[fotoActualIndex];
+                let tiempoDentroDeFoto = tiempoTranscurrido % secPorFoto;
 
                 ctx.fillStyle = "#050a0f";
                 ctx.fillRect(0, 0, 720, 1280);
 
-                let hRatio = canvas.width / img.width;
-                let vRatio = canvas.height / img.height;
-                let ratio = Math.min(hRatio, vRatio);
-                let centerShift_x = (canvas.width - img.width * ratio) / 2;
-                let centerShift_y = (canvas.height - img.height * ratio) / 2;
-                ctx.drawImage(img, 0, 0, img.width, img.height, centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);
+                ctx.save();
 
+                // ADMINISTRADOR DE EFECTOS CINEMATOGRÁFICOS SELECCIONABLES
+                if (efectoSeleccionado === "fade") {
+                    // Efecto 1: Desvanecimiento cruzado gradual
+                    if (tiempoDentroDeFoto < 0.6 && fotoActualIndex > 0) {
+                        let imgAnterior = imagenes[fotoActualIndex - 1];
+                        pintarImagenEscalada(ctx, canvas, imgAnterior);
+                        ctx.globalAlpha = tiempoDentroDeFoto / 0.6;
+                    }
+                    pintarImagenEscalada(ctx, canvas, imgActual);
+                } 
+                else if (efectoSeleccionado === "zoom") {
+                    // Efecto 2: Efecto Ken Burns (Acercamiento fluido por foto)
+                    let factorZoom = 1 + (tiempoDentroDeFoto / secPorFoto) * 0.12; 
+                    ctx.translate(360, 640);
+                    ctx.scale(factorZoom, factorZoom);
+                    ctx.translate(-360, -640);
+                    pintarImagenEscalada(ctx, canvas, imgActual);
+                } 
+                else if (efectoSeleccionado === "slide") {
+                    // Efecto 3: Desplazamiento lateral cinematográfico continuo
+                    if (tiempoDentroDeFoto < 0.5 && fotoActualIndex > 0) {
+                        let progreso = tiempoDentroDeFoto / 0.5;
+                        let desplazaX = (1 - progreso) * 720;
+                        
+                        ctx.save();
+                        ctx.translate(-desplazaX, 0);
+                        pintarImagenEscalada(ctx, canvas, imagenes[fotoActualIndex - 1]);
+                        ctx.restore();
+                        
+                        ctx.save();
+                        ctx.translate(720 - desplazaX, 0);
+                        pintarImagenEscalada(ctx, canvas, imgActual);
+                        ctx.restore();
+                    } else {
+                        pintarImagenEscalada(ctx, canvas, imgActual);
+                    }
+                } 
+                else if (efectoSeleccionado === "flash") {
+                    // Efecto 4: Destello de luz blanca al cambiar de escena
+                    pintarImagenEscalada(ctx, canvas, imgActual);
+                    if (tiempoDentroDeFoto < 0.3) {
+                        let opacidadDestello = 1 - (tiempoDentroDeFoto / 0.3);
+                        ctx.fillStyle = `rgba(255, 255, 255, ${opacidadDestello * 0.75})`;
+                        ctx.fillRect(0, 0, 720, 1280);
+                    }
+                } 
+                else {
+                    // Efecto 5: Corte directo sin transiciones adicionales
+                    pintarImagenEscalada(ctx, canvas, imgActual);
+                }
+
+                ctx.restore();
+
+                // Cintillo de marca de agua oficial
                 if (conLogo === "si") {
                     ctx.fillStyle = "rgba(5, 10, 15, 0.75)";
                     ctx.fillRect(0, 1140, 720, 140);
@@ -624,6 +732,16 @@
                 }
 
                 requestAnimationFrame(dibujarFotograma);
+            }
+
+            // Renderizador proporcional
+            function pintarImagenEscalada(contexto, canvasRef, imgObj) {
+                let hRatio = canvasRef.width / imgObj.width;
+                let vRatio = canvasRef.height / imgObj.height;
+                let ratio = Math.min(hRatio, vRatio);
+                let shiftX = (canvasRef.width - imgObj.width * ratio) / 2;
+                let shiftY = (canvasRef.height - imgObj.height * ratio) / 2;
+                contexto.drawImage(imgObj, 0, 0, imgObj.width, imgObj.height, shiftX, shiftY, imgObj.width * ratio, imgObj.height * ratio);
             }
 
             requestAnimationFrame(dibujarFotograma);
