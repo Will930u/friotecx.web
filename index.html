@@ -160,7 +160,7 @@
 
         .section-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; color: var(--neon-blue); letter-spacing: 2px; margin-top: 40px; text-transform: uppercase; text-align: center; }
 
-        /* CARRUSEL 1: TRABAJOS DINÁMICO */
+        /* CARRUSELES */
         .carousel-container { 
             width: 95%; max-width: 1100px; 
             background: #000; border: 4px solid var(--border-metal); 
@@ -168,7 +168,6 @@
             position: relative; z-index: 1; overflow: hidden;
         }
 
-        /* CARRUSEL 2: CAPTURAS */
         .reviews-container { 
             width: 95%; max-width: 420px; 
             background: #0b111e; border: 3px solid var(--neon-blue); 
@@ -196,7 +195,7 @@
         }
 
         .admin-panel { 
-            display: none; width: 90%; max-width: 550px; 
+            display: none; width: 95%; max-width: 650px; 
             background: #0f172a; border: 2px solid #ef4444; 
             border-radius: 12px; padding: 20px; margin-top: 20px; 
             box-shadow: 0 0 30px rgba(239,68,68,0.25); box-sizing: border-box; 
@@ -208,7 +207,15 @@
         .admin-panel button { background: #ef4444; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
         .admin-panel button:hover { background: #dc2626; }
         
-        .admin-panel input[type="file"] { background: #1e293b; border: 1px dashed var(--neon-blue); cursor: pointer; padding: 15px; }
+        .admin-panel input[type="file"] { background: #1e293b; border: 1px dashed var(--neon-blue); cursor: pointer; padding: 12px; }
+
+        /* CREADOR DE VIDEOS INTEGRADO */
+        .video-maker-box {
+            background: #0b1329; border: 1px dashed var(--neon-blue);
+            border-radius: 10px; padding: 15px; margin-top: 20px;
+        }
+        .video-control-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .maker-preview-canvas { display: none; width: 180px; height: 320px; background: #000; margin: 10px auto; border: 2px solid #334155; border-radius: 8px; }
 
         /* LISTAS DE GESTIÓN INTERNA */
         .manager-container {
@@ -237,6 +244,7 @@
         @media (max-width: 768px) { 
             .dashboard-content { grid-template-columns: 1fr; } 
             .info-column { border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; } 
+            .video-control-row { grid-template-columns: 1fr; }
         }
     </style>
 
@@ -340,26 +348,47 @@
         <div id="admin-actions-box" style="display: none;">
             <p style="color: #22c55e; font-weight: bold; margin-top:0;">✓ Conexión establecida</p>
             
-            <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Cargar Nuevas Fotografías</h4>
-            <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 8px 0;">Selecciona una o varias fotos y define su destino:</p>
-            
+            <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Cargar Nuevas Fotografías a la Web</h4>
             <input type="file" id="upload-file-input" accept="image/*" multiple>
-            
             <select id="upload-destination">
                 <option value="trabajos">Destino: Carrusel de Trabajos Realizados</option>
                 <option value="capturas">Destino: Carrusel de Opiniones (WhatsApp)</option>
             </select>
             <button type="button" id="btn-publicar-auto" style="background: var(--neon-blue); color: black;" onclick="subirImagenesMultiples()">Subir y Publicar al Instante</button>
 
-            <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Fotos de Trabajos:</p>
-            <div class="manager-container" id="lista-borrar-trabajos">
-                <p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p>
+            <div class="video-maker-box">
+                <h4 style="color: #22c55e; margin-top:0; margin-bottom:10px;">🎬 Creador de Videos para Redes (Reels / TikTok)</h4>
+                <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 10px 0;">Arma un video vertical con música y tus fotos al instante para descargarlo gratis.</p>
+                
+                <label style="font-size:0.8rem; color:#cbd5e1;">1. Selecciona las fotos del video:</label>
+                <input type="file" id="maker-photos" accept="image/*" multiple>
+                
+                <label style="font-size:0.8rem; color:#cbd5e1; margin-top:5px; display:block;">2. Sube la música (.mp3):</label>
+                <input type="file" id="maker-audio" accept="audio/mp3, audio/*">
+
+                <div class="video-control-row">
+                    <div>
+                        <label style="font-size:0.75rem; color:#94a3b8;">Segundos por foto:</label>
+                        <input type="number" id="maker-duration" value="3" min="1" max="10" style="padding:6px; margin:4px 0;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem; color:#94a3b8;">Ajuste de Marca:</label>
+                        <select id="maker-watermark" style="padding:6px; margin:4px 0;">
+                            <option value="si">Con Logo de FRIOTECX</option>
+                            <option value="no">Sin Logo (Limpio)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <canvas id="canvas-render" class="maker-preview-canvas" width="720" height="1280"></canvas>
+                <button type="button" id="btn-render-video" style="background: #22c55e; color: black; font-weight: bold; margin-top:10px;" onclick="procesarYCrearVideo()">⚡ Procesar y Descargar MP4</button>
             </div>
 
+            <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Fotos de Trabajos:</p>
+            <div class="manager-container" id="lista-borrar-trabajos"><p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p></div>
+
             <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Capturas de Clientes:</p>
-            <div class="manager-container" id="lista-borrar-capturas">
-                <p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p>
-            </div>
+            <div class="manager-container" id="lista-borrar-capturas"><p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p></div>
 
             <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Agregar Nuevo Servicio al Menú</h4>
             <input type="text" id="new-service-name" placeholder="Ej: • Servicio Técnico Industrial">
@@ -371,9 +400,7 @@
             <button type="button" style="background: #22c55e; color: white;" onclick="agregarServicioFirebase()">Agregar Servicio al Menú</button>
 
             <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Servicios del Menú:</p>
-            <div class="manager-container" id="lista-borrar-servicios">
-                <p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p>
-            </div>
+            <div class="manager-container" id="lista-borrar-servicios"><p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p></div>
         </div>
     </div>
 
@@ -392,12 +419,9 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // 💥 CLAVE DE IMGBB TOTALMENTE CONFIGURADA Y REUBICADA
         const IMGBB_API_KEY = "0a5e7954b4b9fed188e15e4e5532e57b";
 
-        // Variables de Control para los tiempos de los carruseles
-        let indexTrabajos = 0;
-        let indexCapturas = 0;
+        let indexTrabajos = 0; let indexCapturas = 0;
 
         function rotarTrabajos() {
             const list = document.querySelectorAll('#contenedor-trabajos .carousel-slide');
@@ -419,7 +443,6 @@
             setTimeout(rotarCapturas, 5500);
         }
 
-        // Desplegables
         function toggleMenu(menuId, btn) {
             document.querySelectorAll('.dropdown-content').forEach(m => { if(m.id !== menuId) m.classList.remove('show'); });
             document.querySelectorAll('.dropbtn').forEach(b => { if(b !== btn) b.classList.remove('active'); });
@@ -434,7 +457,6 @@
             }
         }
 
-        // Tasa Oficial BCV
         async function actualizarTasa() {
             try {
                 const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
@@ -444,22 +466,18 @@
         }
         actualizarTasa();
 
-        // Nieve Estilizada
         const fxContainer = document.getElementById('fx-container');
         function crearCopo() {
-            const copo = document.createElement('div');
-            copo.classList.add('snowflake');
+            const copo = document.createElement('div'); copo.classList.add('snowflake');
             const tam = Math.random() * 3 + 2;
             copo.style.width = tam + 'px'; copo.style.height = tam + 'px';
             copo.style.left = Math.random() * 100 + 'vw';
-            const dur = Math.random() * 5 + 5;
-            copo.style.animationDuration = dur + 's';
+            const dur = Math.random() * 5 + 5; copo.style.animationDuration = dur + 's';
             fxContainer.appendChild(copo);
             setTimeout(() => copo.remove(), dur * 1000);
         }
         setInterval(crearCopo, 500);
 
-        // LOGIN Y SISTEMA DE ADMINISTRACIÓN
         function toggleAdminPanel() { document.getElementById('panel-admin').classList.toggle('show'); }
 
         function loginAdministrador() {
@@ -473,54 +491,181 @@
                 .catch(err => alert("Acceso denegado."));
         }
 
-        // NUEVA FUNCIÓN OPTIMIZADA PARA PROCESAR MÚLTIPLES IMÁGENES
         async function subirImagenesMultiples() {
             const fileInput = document.getElementById('upload-file-input');
             const destino = document.getElementById('upload-destination').value;
             const boton = document.getElementById('btn-publicar-auto');
 
             if (fileInput.files.length === 0) return alert("Por favor, selecciona al menos una foto.");
-            
-            if (IMGBB_API_KEY === "PEGA_AQUI_TU_API_KEY_DE_IMGBB" || !IMGBB_API_KEY) {
-                return alert("Falta configurar la API Key de ImgBB.");
-            }
-
-            const archivos = fileInput.files;
-            const totalArchivos = archivos.length;
+            const archivos = fileInput.files; const totalArchivos = archivos.length;
             boton.disabled = true;
 
-            // Bucle secuencial para procesar archivo por archivo
             for (let i = 0; i < totalArchivos; i++) {
                 const file = archivos[i];
                 boton.innerText = `Subiendo ${i + 1} de ${totalArchivos}...`;
-
-                const formData = new FormData();
-                formData.append("image", file);
+                const formData = new FormData(); formData.append("image", file);
 
                 try {
                     const respuesta = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
                     const resultadoJson = await respuesta.json();
 
                     if (resultadoJson.success) {
-                        const urlLimpia = resultadoJson.data.url;
-
-                        // Guarda el documento en la colección asignada
                         await db.collection(destino).add({
-                            url: urlLimpia,
+                            url: resultadoJson.data.url,
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                    } else {
-                        alert(`No se pudo subir el archivo: ${file.name}`);
                     }
-                } catch (error) {
-                    alert(`Error en el archivo ${file.name}: ${error.message}`);
-                }
+                } catch (error) { alert(`Error en archivo ${file.name}: ${error.message}`); }
             }
 
-            alert(`¡Proceso completado! Se publicaron ${totalArchivos} fotos con éxito.`);
-            fileInput.value = '';
-            boton.innerText = "Subir y Publicar al Instante";
-            boton.disabled = false;
+            alert(`¡Completado! Se publicaron ${totalArchivos} fotos.`);
+            fileInput.value = ''; boton.innerText = "Subir y Publicar al Instante"; boton.disabled = false;
+        }
+
+        // 🎬 LÓGICA DEL MOTOR DE VIDEO INTERNO (CARRUSEL + MÚSICA CON FADE OUT)
+        async function procesarYCrearVideo() {
+            const photoInput = document.getElementById('maker-photos');
+            const audioInput = document.getElementById('maker-audio');
+            const secPorFoto = parseInt(document.getElementById('maker-duration').value) || 3;
+            const conLogo = document.getElementById('maker-watermark').value;
+            const btn = document.getElementById('btn-render-video');
+
+            if (photoInput.files.length === 0) return alert("Selecciona al menos una foto para el video.");
+            if (audioInput.files.length === 0) return alert("Por favor, sube un archivo de música (.mp3).");
+
+            btn.disabled = true;
+            btn.innerText = "Fabricando Video (Espera un momento)...";
+
+            const canvas = document.getElementById('canvas-render');
+            const ctx = canvas.getContext('2d');
+            canvas.style.display = "block"; // Mostrar previsualización
+
+            // Cargar todos los archivos de imagen en memoria
+            const cargarImagen = file => new Promise((res) => {
+                const reader = new FileReader();
+                reader.onload = e => { const img = new Image(); img.onload = () => res(img); img.src = e.target.result; };
+                reader.readAsDataURL(file);
+            });
+
+            const imagenes = [];
+            for (let file of photoInput.files) {
+                const imgCargada = await cargarImagen(file);
+                imagenes.push(imgCargada);
+            }
+
+            // Cargar el audio usando AudioContext para procesar el Fade Out final
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const audioFile = audioInput.files[0];
+            const audioBuffer = await audioFile.arrayBuffer().then(buf => audioCtx.decodeAudioData(buf));
+
+            const totalDuracionVideo = imagenes.length * secPorFoto;
+
+            // Configurar destino del audio y el efecto desvanecer (Fade Out)
+            const mediaStreamDest = audioCtx.createMediaStreamDestination();
+            const sourceNode = audioCtx.createBufferSource();
+            sourceNode.buffer = bufferAcortado(audioBuffer, audioCtx, totalDuracionVideo);
+
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.setValueAtTime(1, 0);
+            // El desvanecimiento empieza 1.5 segundos antes de terminar el video
+            gainNode.gain.linearRampToValueAtTime(0, totalDuracionVideo); 
+
+            sourceNode.connect(gainNode);
+            gainNode.connect(mediaStreamDest);
+
+            // Preparar captura de la pantalla invisible (Canvas) a 30 FPS
+            const canvasStream = canvas.captureStream(30);
+            // Fusionar video de canvas y audio procesado con Fade-Out
+            const combinedStream = new MediaStream([
+                canvasStream.getVideoTracks()[0],
+                mediaStreamDest.getAudioTracks()[0]
+            ]);
+
+            const recorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm;codecs=vp8,opus' });
+            const chunks = [];
+            recorder.ondataavailable = e => chunks.push(e.data);
+            
+            recorder.onstop = () => {
+                const blobVideo = new Blob(chunks, { type: 'video/mp4' });
+                const urlDescarga = URL.createObjectURL(blobVideo);
+                const a = document.createElement('a');
+                a.href = urlDescarga;
+                a.download = `FRIOTECX_Trabajos_${Date.now()}.mp4`;
+                a.click();
+
+                canvas.style.display = "none";
+                btn.disabled = false;
+                btn.innerText = "⚡ Procesar y Descargar MP4";
+                alert("¡Video generado y descargado con éxito! Listo para tus redes.");
+                audioCtx.close();
+            };
+
+            // Iniciar grabación y reproducción de audio sincronizada
+            recorder.start();
+            sourceNode.start(0);
+
+            let tiempoInicio = Date.now();
+            
+            function dibujarFotograma() {
+                let tiempoTranscurrido = (Date.now() - tiempoInicio) / 1000;
+                if (tiempoTranscurrido >= totalDuracionVideo) {
+                    recorder.stop();
+                    sourceNode.stop();
+                    return;
+                }
+
+                // Averiguar qué imagen corresponde según el segundo actual
+                let fotoActualIndex = Math.floor(tiempoTranscurrido / secPorFoto);
+                if (fotoActualIndex >= imagenes.length) fotoActualIndex = imagenes.length - 1;
+                const img = imagenes[fotoActualIndex];
+
+                // Limpiar fondo a negro (Formato Vertical 720x1280)
+                ctx.fillStyle = "#050a0f";
+                ctx.fillRect(0, 0, 720, 1280);
+
+                // Dibujar imagen centrada y escalada (Ajuste proporcional)
+                let hRatio = canvas.width / img.width;
+                let vRatio = canvas.height / img.height;
+                let ratio = Math.min(hRatio, vRatio);
+                let centerShift_x = (canvas.width - img.width * ratio) / 2;
+                let centerShift_y = (canvas.height - img.height * ratio) / 2;
+                ctx.drawImage(img, 0, 0, img.width, img.height, centerShift_x, centerShift_y, img.width * ratio, img.height * ratio);
+
+                // Agregar marca de agua estilizada de FRIOTECX si está activo
+                if (conLogo === "si") {
+                    ctx.fillStyle = "rgba(0, 212, 255, 0.15)";
+                    ctx.fillRect(40, 1160, 640, 70);
+                    ctx.strokeStyle = "#00d4ff";
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(40, 1160, 640, 70);
+
+                    ctx.fillStyle = "#ffffff";
+                    ctx.font = "bold 32px Rajdhani, sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.fillText("❄️ FRIOTECX | REFRIGERACIÓN PROFESIONAL", 360, 1205);
+                }
+
+                requestAnimationFrame(dibujarFotograma);
+            }
+
+            requestAnimationFrame(dibujarFotograma);
+        }
+
+        // Cortar el audio exactamente al tiempo del video para evitar desfases
+        function bufferAcortado(audioBuffer, audioCtx, duracionMax) {
+            const numCanales = audioBuffer.numberOfChannels;
+            const tasaMuestreo = audioBuffer.sampleRate;
+            const totalFotogramas = tasaMuestreo * duracionMax;
+            const nuevoBuffer = audioCtx.createBuffer(numCanales, totalFotogramas, tasaMuestreo);
+            
+            for (let canal = 0; canal < numCanales; canal++) {
+                const canalOriginal = audioBuffer.getChannelData(canal);
+                const nuevoCanal = nuevoBuffer.getChannelData(canal);
+                for (let i = 0; i < totalFotogramas; i++) {
+                    nuevoCanal[i] = i < canalOriginal.length ? canalOriginal[i] : 0;
+                }
+            }
+            return nuevoBuffer;
         }
 
         function agregarServicioFirebase() {
@@ -531,109 +676,72 @@
 
             db.collection("menus").add({ name: name, msg: encodeURIComponent(msg), category: cat })
             .then(() => { 
-                alert("Menú actualizado con el nuevo servicio."); 
+                alert("Menú actualizado."); 
                 document.getElementById('new-service-name').value = '';
                 document.getElementById('new-service-msg').value = '';
             });
         }
 
-        // ACCIONES DE ELIMINACIÓN GENERALES
         function borrarElementoFirebase(coleccion, idDoc) {
-            if(confirm(`¿Estás seguro de que deseas borrar este elemento de forma permanente?`)) {
-                db.collection(coleccion).doc(idDoc).delete()
-                .then(() => alert("Eliminado correctamente."))
-                .catch(err => alert("Error: " + err.message));
+            if(confirm(`¿Deseas borrar este elemento permanentemente?`)) {
+                db.collection(coleccion).doc(idDoc).delete().then(() => alert("Eliminado."));
             }
         }
 
-        // ESCUCHADORES MAESTROS EN TIEMPO REAL
         function sincronizarBaseDeDatos() {
-            // 1. Escuchar Carrusel de Trabajos Realizados
             db.collection("trabajos").orderBy("timestamp", "desc").onSnapshot(snap => {
                 const contenedor = document.getElementById('contenedor-trabajos');
                 const listaBorrar = document.getElementById('lista-borrar-trabajos');
-                contenedor.innerHTML = '';
-                listaBorrar.innerHTML = '';
-
+                contenedor.innerHTML = ''; listaBorrar.innerHTML = '';
                 if (!snap.empty) {
                     snap.forEach((doc, i) => {
                         const d = doc.data();
                         contenedor.innerHTML += `<div class="carousel-slide ${i === 0 ? 'active' : ''}"><img src="${d.url}"></div>`;
-                        listaBorrar.innerHTML += `
-                            <div class="manager-item">
-                                <img src="${d.url}">
-                                <span>Trabajo #${snap.size - i}</span>
-                                <button class="btn-delete-small" onclick="borrarElementoFirebase('trabajos', '${doc.id}')">Eliminar</button>
-                            </div>`;
+                        listaBorrar.innerHTML += `<div class="manager-item"><img src="${d.url}"><span>Trabajo #${snap.size - i}</span><button class="btn-delete-small" onclick="borrarElementoFirebase('trabajos', '${doc.id}')">Eliminar</button></div>`;
                     });
                 } else {
-                    contenedor.innerHTML = '<div class="carousel-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay fotos cargadas. Sube tus trabajos desde el panel.</p></div>';
-                    listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay trabajos registrados.</p>';
+                    contenedor.innerHTML = '<div class="carousel-slide active"><p style="color: #64748b; padding:20px; text-align:center;">No hay fotos cargadas.</p></div>';
+                    listaBorrar.innerHTML = '<p style="color:#64748b; text-align:center;">No hay registros.</p>';
                 }
             });
 
-            // 2. Escuchar Carrusel de Capturas de Clientes
             db.collection("capturas").orderBy("timestamp", "desc").onSnapshot(snap => {
                 const contenedor = document.getElementById('contenedor-capturas');
                 const listaBorrar = document.getElementById('lista-borrar-capturas');
-                contenedor.innerHTML = '';
-                listaBorrar.innerHTML = '';
-
+                contenedor.innerHTML = ''; listaBorrar.innerHTML = '';
                 if (!snap.empty) {
                     snap.forEach((doc, i) => {
                         const d = doc.data();
                         contenedor.innerHTML += `<div class="review-slide ${i === 0 ? 'active' : ''}"><img src="${d.url}"></div>`;
-                        listaBorrar.innerHTML += `
-                            <div class="manager-item">
-                                <img src="${d.url}">
-                                <span>Captura #${snap.size - i}</span>
-                                <button class="btn-delete-small" onclick="borrarElementoFirebase('capturas', '${doc.id}')">Eliminar</button>
-                            </div>`;
+                        listaBorrar.innerHTML += `<div class="manager-item"><img src="${d.url}"><span>Captura #${snap.size - i}</span><button class="btn-delete-small" onclick="borrarElementoFirebase('capturas', '${doc.id}')">Eliminar</button></div>`;
                     });
                 } else {
-                    contenedor.innerHTML = '<div class="review-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay opiniones disponibles.</p></div>';
-                    listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay capturas registradas.</p>';
+                    contenedor.innerHTML = '<div class="review-slide active"><p style="color: #64748b; padding:20px; text-align:center;">No hay opiniones.</p></div>';
+                    listaBorrar.innerHTML = '<p style="color:#64748b; text-align:center;">No hay registros.</p>';
                 }
             });
 
-            // 3. Escuchar Menús y Enlaces Dinámicos
             db.collection("menus").onSnapshot(snap => {
                 const menuServ = document.getElementById('menu-servicios');
                 const menuInst = document.getElementById('menu-instala');
                 const listaBorrarServ = document.getElementById('lista-borrar-servicios');
-                
                 document.querySelectorAll('.dynamic-service').forEach(el => el.remove());
                 listaBorrarServ.innerHTML = '';
-
                 if(!snap.empty) {
                     snap.forEach(doc => {
                         const d = doc.data();
-                        
                         const nLink = document.createElement('a');
-                        nLink.href = `https://wa.me/584243497259?text=${d.msg}`;
-                        nLink.target = "_blank";
-                        nLink.className = "service-link dynamic-service";
-                        nLink.innerText = d.name;
-                        
-                        if(d.category === 'servicios') menuServ.appendChild(nLink);
-                        else menuInst.appendChild(nLink);
-
-                        listaBorrarServ.innerHTML += `
-                            <div class="manager-item">
-                                <span>${d.name} (${d.category === 'servicios' ? 'Serv.' : 'Inst.'})</span>
-                                <button class="btn-delete-small" onclick="borrarElementoFirebase('menus', '${doc.id}')">Eliminar</button>
-                            </div>`;
+                        nLink.href = `https://wa.me/584243497259?text=${d.msg}`; nLink.target = "_blank";
+                        nLink.className = "service-link dynamic-service"; nLink.innerText = d.name;
+                        if(d.category === 'servicios') menuServ.appendChild(nLink); else menuInst.appendChild(nLink);
+                        listaBorrarServ.innerHTML += `<div class="manager-item"><span>${d.name}</span><button class="btn-delete-small" onclick="borrarElementoFirebase('menus', '${doc.id}')">Eliminar</button></div>`;
                     });
-                } else {
-                    listaBorrarServ.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay servicios dinámicos.</p>';
                 }
             });
         }
         
-        // Inicializar Procesos
         sincronizarBaseDeDatos();
-        setTimeout(rotarTrabajos, 2000);
-        setTimeout(rotarCapturas, 2500);
+        setTimeout(rotarTrabajos, 2000); setTimeout(rotarCapturas, 2500);
     </script>
 </body>
 </html>
