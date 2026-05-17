@@ -593,20 +593,18 @@
                 audioPlayer.src = URL.createObjectURL(archivoAudio);
                 audioPlayer.volume = 1.0;
                 
-                // Forzar inicio del reproductor nativo
                 try {
                     await audioPlayer.play();
                 } catch(e) {
-                    console.log("Audio esperando interacción del usuario.");
+                    console.log("Audio esperando interacción.");
                 }
                 
-                // Capturar pista de sonido limpia del elemento HTML5 sin riesgo de CORS
                 const ctxAudioNativo = new (window.AudioContext || window.webkitAudioContext)();
                 const fuenteOrigen = ctxAudioNativo.createMediaElementSource(audioPlayer);
                 const destinoFlujo = ctxAudioNativo.createMediaStreamDestination();
                 
                 fuenteOrigen.connect(destinoFlujo);
-                fuenteOrigen.connect(ctxAudioNativo.destination); // Para que se escuche mientras renderiza
+                fuenteOrigen.connect(ctxAudioNativo.destination);
                 
                 tracksDeCaptura.push(destinoFlujo.getStream().getAudioTracks()[0]);
                 tieneAudio = true;
@@ -614,7 +612,7 @@
 
             const streamCombinadoFinal = new MediaStream(tracksDeCaptura);
             
-            // SELECCIÓN AUTOMÁTICA DE FORMATO COMPATIBLE SEGÚN EL DISPOSITIVO (EVITA CONGELAMIENTOS)
+            // SELECCIÓN AUTOMÁTICA DE FORMATO COMPATIBLE SEGÚN EL DISPOSITIVO
             let opcionesMime = { mimeType: 'video/mp4;codecs=avc1' };
             if (!MediaRecorder.isTypeSupported(opcionesMime.mimeType)) {
                 opcionesMime = { mimeType: 'video/webm;codecs=vp9,opus' };
@@ -623,14 +621,13 @@
                 opcionesMime = { mimeType: 'video/webm;codecs=vp8' };
             }
             if (!MediaRecorder.isTypeSupported(opcionesMime.mimeType)) {
-                opcionesMime = {}; // Deja que el navegador escoja su formato nativo más estable
+                opcionesMime = {}; 
             }
 
             let recorder;
             try {
                 recorder = new MediaRecorder(streamCombinadoFinal, opcionesMime);
             } catch (e) {
-                // Última línea de defensa si el sistema rechaza los codecs combinados
                 recorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm' });
             }
 
@@ -645,7 +642,6 @@
                     audioPlayer.src = "";
                 }
 
-                // Determinamos la extensión real del archivo final generado por el navegador
                 const tipoFinal = recorder.mimeType.includes('mp4') ? 'mp4' : 'webm';
                 const blobVideo = new Blob(chunks, { type: recorder.mimeType || 'video/mp4' });
                 const urlDescarga = URL.createObjectURL(blobVideo);
@@ -663,7 +659,7 @@
                 alert("¡Video cinematográfico descargado con éxito!");
             };
 
-            recorder.start(1000); // Graba en fragmentos de 1 segundo para no saturar la memoria RAM
+            recorder.start(1000); 
             let tiempoInicio = Date.now();
             
             function dibujarFotograma() {
@@ -674,13 +670,11 @@
                     return;
                 }
 
-                // Sistema inteligente de rampa automática para el Fade Out del audio
                 if (tieneAudio && tiempoTranscurrido >= (totalDuracionVideo - 2)) {
                     let tiempoRestante = totalDuracionVideo - tiempoTranscurrido; 
                     audioPlayer.volume = Math.max(0, tiempoRestante / 2); 
                 }
 
-                // Cálculo de transiciones
                 let fotoActualIndex = Math.floor(tiempoTranscurrido / secPorFoto);
                 if (fotoActualIndex >= imagenes.length) fotoActualIndex = imagenes.length - 1;
                 
@@ -692,7 +686,6 @@
 
                 ctx.save();
 
-                // ADMINISTRADOR DE EFECTOS CINEMATOGRÁFICOS SELECCIONABLES
                 if (efectoSeleccionado === "fade") {
                     if (tiempoDentroDeFoto < 0.6 && fotoActualIndex > 0) {
                         let imgAnterior = imagenes[fotoActualIndex - 1];
@@ -740,7 +733,6 @@
 
                 ctx.restore();
 
-                // Cintillo de marca de agua oficial
                 if (conLogo === "si") {
                     ctx.fillStyle = "rgba(5, 10, 15, 0.75)";
                     ctx.fillRect(0, 1140, 720, 140);
