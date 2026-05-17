@@ -544,7 +544,7 @@
         }
 
         // ================================================================
-        // ENGINE AVANZADO DE RENDER: MULTIEFECTOS Y CAPTURA DE AUDIO FIEL
+        // ENGINE AVANZADO DE RENDER: COMPATIBILIDAD ULTRA-BLINDADA
         // ================================================================
         async function procesarYCrearVideo() {
             const photoInput = document.getElementById('maker-photos');
@@ -594,7 +594,11 @@
                 audioPlayer.volume = 1.0;
                 
                 // Forzar inicio del reproductor nativo
-                audioPlayer.play();
+                try {
+                    await audioPlayer.play();
+                } catch(e) {
+                    console.log("Audio esperando interacción del usuario.");
+                }
                 
                 // Capturar pista de sonido limpia del elemento HTML5 sin riesgo de CORS
                 const ctxAudioNativo = new (window.AudioContext || window.webkitAudioContext)();
@@ -609,22 +613,49 @@
             }
 
             const streamCombinadoFinal = new MediaStream(tracksDeCaptura);
-            const recorder = new MediaRecorder(streamCombinadoFinal, { mimeType: 'video/webm;codecs=vp8,opus' });
-            const chunks = [];
             
-            recorder.ondataavailable = e => chunks.push(e.data);
+            // SELECCIÓN AUTOMÁTICA DE FORMATO COMPATIBLE SEGÚN EL DISPOSITIVO (EVITA CONGELAMIENTOS)
+            let opcionesMime = { mimeType: 'video/mp4;codecs=avc1' };
+            if (!MediaRecorder.isTypeSupported(opcionesMime.mimeType)) {
+                opcionesMime = { mimeType: 'video/webm;codecs=vp9,opus' };
+            }
+            if (!MediaRecorder.isTypeSupported(opcionesMime.mimeType)) {
+                opcionesMime = { mimeType: 'video/webm;codecs=vp8' };
+            }
+            if (!MediaRecorder.isTypeSupported(opcionesMime.mimeType)) {
+                opcionesMime = {}; // Deja que el navegador escoja su formato nativo más estable
+            }
+
+            let recorder;
+            try {
+                recorder = new MediaRecorder(streamCombinadoFinal, opcionesMime);
+            } catch (e) {
+                // Última línea de defensa si el sistema rechaza los codecs combinados
+                recorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm' });
+            }
+
+            const chunks = [];
+            recorder.ondataavailable = e => {
+                if (e.data && e.data.size > 0) chunks.push(e.data);
+            };
+
             recorder.onstop = () => {
                 if(tieneAudio) {
                     audioPlayer.pause();
                     audioPlayer.src = "";
                 }
 
-                const blobVideo = new Blob(chunks, { type: 'video/mp4' });
+                // Determinamos la extensión real del archivo final generado por el navegador
+                const tipoFinal = recorder.mimeType.includes('mp4') ? 'mp4' : 'webm';
+                const blobVideo = new Blob(chunks, { type: recorder.mimeType || 'video/mp4' });
                 const urlDescarga = URL.createObjectURL(blobVideo);
+                
                 const a = document.createElement('a');
                 a.href = urlDescarga;
-                a.download = `FRIOTECX_Studio_Reel_${Date.now()}.mp4`;
+                a.download = `FRIOTECX_Studio_Reel_${Date.now()}.${tipoFinal}`;
+                document.body.appendChild(a);
                 a.click();
+                document.body.removeChild(a);
 
                 canvas.style.display = "none";
                 btn.disabled = false;
@@ -632,21 +663,21 @@
                 alert("¡Video cinematográfico descargado con éxito!");
             };
 
-            recorder.start();
+            recorder.start(1000); // Graba en fragmentos de 1 segundo para no saturar la memoria RAM
             let tiempoInicio = Date.now();
             
             function dibujarFotograma() {
                 let tiempoTranscurrido = (Date.now() - tiempoInicio) / 1000;
                 
                 if (tiempoTranscurrido >= totalDuracionVideo) {
-                    recorder.stop();
+                    if (recorder.state !== "inactive") recorder.stop();
                     return;
                 }
 
                 // Sistema inteligente de rampa automática para el Fade Out del audio
                 if (tieneAudio && tiempoTranscurrido >= (totalDuracionVideo - 2)) {
                     let tiempoRestante = totalDuracionVideo - tiempoTranscurrido; 
-                    audioPlayer.volume = Math.max(0, tiempoRestante / 2); // Baja el volumen linealmente los últimos 2 segundos
+                    audioPlayer.volume = Math.max(0, tiempoRestante / 2); 
                 }
 
                 // Cálculo de transiciones
@@ -663,7 +694,6 @@
 
                 // ADMINISTRADOR DE EFECTOS CINEMATOGRÁFICOS SELECCIONABLES
                 if (efectoSeleccionado === "fade") {
-                    // Efecto 1: Desvanecimiento cruzado gradual
                     if (tiempoDentroDeFoto < 0.6 && fotoActualIndex > 0) {
                         let imgAnterior = imagenes[fotoActualIndex - 1];
                         pintarImagenEscalada(ctx, canvas, imgAnterior);
@@ -672,7 +702,6 @@
                     pintarImagenEscalada(ctx, canvas, imgActual);
                 } 
                 else if (efectoSeleccionado === "zoom") {
-                    // Efecto 2: Efecto Ken Burns (Acercamiento fluido por foto)
                     let factorZoom = 1 + (tiempoDentroDeFoto / secPorFoto) * 0.12; 
                     ctx.translate(360, 640);
                     ctx.scale(factorZoom, factorZoom);
@@ -680,7 +709,6 @@
                     pintarImagenEscalada(ctx, canvas, imgActual);
                 } 
                 else if (efectoSeleccionado === "slide") {
-                    // Efecto 3: Desplazamiento lateral cinematográfico continuo
                     if (tiempoDentroDeFoto < 0.5 && fotoActualIndex > 0) {
                         let progreso = tiempoDentroDeFoto / 0.5;
                         let desplazaX = (1 - progreso) * 720;
@@ -699,7 +727,6 @@
                     }
                 } 
                 else if (efectoSeleccionado === "flash") {
-                    // Efecto 4: Destello de luz blanca al cambiar de escena
                     pintarImagenEscalada(ctx, canvas, imgActual);
                     if (tiempoDentroDeFoto < 0.3) {
                         let opacidadDestello = 1 - (tiempoDentroDeFoto / 0.3);
@@ -708,7 +735,6 @@
                     }
                 } 
                 else {
-                    // Efecto 5: Corte directo sin transiciones adicionales
                     pintarImagenEscalada(ctx, canvas, imgActual);
                 }
 
@@ -734,7 +760,6 @@
                 requestAnimationFrame(dibujarFotograma);
             }
 
-            // Renderizador proporcional
             function pintarImagenEscalada(contexto, canvasRef, imgObj) {
                 let hRatio = canvasRef.width / imgObj.width;
                 let vRatio = canvasRef.height / imgObj.height;
