@@ -211,11 +211,217 @@
 
         /* CREADOR DE VIDEOS AVANZADO MULTIEFECTOS */
         .video-maker-box {
-            background: #0b1329; border: 1px dashed var(--neon-blue);
-            border-radius: 10px; padding: 15px; margin-top: 20px;
+            <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRIOTECX | Refrigeración Profesional</title>
+    <link rel="icon" type="image/png" href="tu-logo-friotecx.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --neon-blue: #00d4ff;
+            --frozen-white: #e0f7ff;
+            --dark-bg: #050a0f;
+            --panel-gradient: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+            --border-metal: rgba(122, 138, 153, 0.4);
+            --glass: rgba(15, 23, 42, 0.7);
         }
-        .video-control-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .maker-preview-canvas { display: none; width: 180px; height: 320px; background: #000; margin: 10px auto; border: 2px solid #334155; border-radius: 8px; }
+
+        body {
+            margin: 0; padding: 20px;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
+            display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        #fx-container {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none; z-index: 1000;
+        }
+
+        .snowflake {
+            position: absolute; background-color: white; border-radius: 50%;
+            opacity: 0.9; box-shadow: 0 0 8px 2px var(--frozen-white);
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
+
+        .main-frame {
+            width: 95%; max-width: 1100px;
+            background: var(--panel-gradient);
+            border: 4px solid var(--border-metal);
+            border-radius: 15px; padding: 15px;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 10px 40px rgba(0,0,0,0.6);
+            position: relative; z-index: 10;
+        }
+
+        .top-banner {
+            width: 100%; height: 300px;
+            border: 2px solid var(--neon-blue);
+            border-radius: 10px; position: relative; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 20px; background: #000;
+        }
+
+        .logo-central { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
+
+        .dashboard-content {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 25px; 
+            border: 1px solid var(--border-metal); border-radius: 20px;
+        }
+
+        .buttons-column { display: flex; flex-direction: column; gap: 12px; position: relative; align-items: center; }
+        
+        .dropdown { position: relative; width: 100%; display: flex; justify-content: center; }
+
+        .dropbtn {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(180deg, #1e293b, #0f172a);
+            border: 1px solid #334155; padding: 12px 15px; font-size: 0.95rem; 
+            width: 90%; color: #fff; font-weight: bold; cursor: pointer;
+            border-radius: 8px; text-align: center;
+            text-transform: uppercase; letter-spacing: 2px;
+            transition: all 0.3s ease; outline: none;
+        }
+
+        .dropbtn.active { 
+            background: var(--neon-blue); 
+            color: #000; 
+            box-shadow: 0 0 20px var(--neon-blue); 
+        }
+
+        .dropdown-content {
+            display: none; position: absolute; background-color: #0b1a2a;
+            min-width: 280px; z-index: 2000;
+            border: 2px solid var(--neon-blue); 
+            border-radius: 8px; padding: 10px; 
+            left: 50%; transform: translateX(-50%);
+            top: 105%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+            text-align: left;
+        }
+
+        .service-link {
+            display: block;
+            color: #ccc;
+            text-decoration: none;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: 0.2s;
+        }
+
+        .service-link:hover { background: rgba(0, 212, 255, 0.1); color: var(--neon-blue); padding-left: 15px; }
+
+        .social-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px; text-decoration: none; color: white;
+            font-size: 0.9rem; font-weight: 600; transition: 0.3s;
+        }
+
+        .social-item img { width: 22px; height: 22px; }
+        .social-item:hover { background: rgba(255,255,255,0.1); border-radius: 8px; }
+
+        .info-column { 
+            display: flex; flex-direction: column; justify-content: center; 
+            align-items: center; text-align: center; border-left: 1px solid rgba(255,255,255,0.1); 
+        }
+
+        h4 { font-family: 'Rajdhani', sans-serif; letter-spacing: 1.5px; color: var(--neon-blue); margin-bottom: 20px; font-size: 1rem; }
+
+        .contact-links-container { display: flex; flex-direction: column; gap: 12px; width: 100%; align-items: center; }
+
+        .contact-link {
+            text-decoration: none; font-weight: 600; font-size: 0.95rem;
+            transition: 0.3s; display: inline-flex; align-items: center;
+            gap: 12px; padding: 10px 20px; border-radius: 8px; width: 180px;
+        }
+
+        .contact-link img { width: 24px; height: 24px; }
+
+        .whatsapp-link { color: #25d366; border: 1px solid rgba(37, 211, 102, 0.3); }
+        .whatsapp-link:hover { background: rgba(37, 211, 102, 0.1); box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
+
+        .telegram-link { color: var(--neon-blue); border: 1px solid rgba(0, 212, 255, 0.3); }
+        .telegram-link:hover { background: rgba(0, 212, 255, 0.1); box-shadow: 0 0 15px rgba(0, 212, 255, 0.4); }
+
+        .tasa-box { 
+            margin-top: 25px; padding: 15px; 
+            background: rgba(255,255,255,0.03); 
+            border: 1px dashed var(--neon-blue); 
+            border-radius: 10px; width: 80%; 
+        }
+
+        .tasa-display { 
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.8rem; font-weight: bold; 
+            color: #fff; display: block; margin-top: 5px; 
+        }
+
+        .section-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; color: var(--neon-blue); letter-spacing: 2px; margin-top: 40px; text-transform: uppercase; text-align: center; }
+
+        /* CARRUSEL 1: TRABAJOS DINÁMICO */
+        .carousel-container { 
+            width: 95%; max-width: 1100px; 
+            background: #000; border: 4px solid var(--border-metal); 
+            border-radius: 15px; margin-top: 15px; height: 450px; 
+            position: relative; z-index: 1; overflow: hidden;
+        }
+
+        /* CARRUSEL 2: CAPTURAS */
+        .reviews-container { 
+            width: 95%; max-width: 420px; 
+            background: #0b111e; border: 3px solid var(--neon-blue); 
+            border-radius: 15px; margin-top: 15px; height: 560px; 
+            position: relative; z-index: 1; overflow: hidden;
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.15);
+        }
+
+        .carousel-slide, .review-slide {
+            position: absolute; width: 100%; height: 100%;
+            opacity: 0; transition: opacity 1s ease-in-out;
+            display: flex; justify-content: center; align-items: center;
+        }
+
+        .carousel-slide.active, .review-slide.active { opacity: 1; }
+        .carousel-slide img, .review-slide img { width: 100%; height: 100%; object-fit: contain; }
+        .review-slide img { padding: 10px; box-sizing: border-box; }
+
+        /* PANEL ADMINISTRADOR */
+        .admin-trigger { 
+            margin-top: 70px; font-size: 0.75rem; 
+            color: rgba(255,255,255,0.15); cursor: pointer; 
+            text-decoration: underline; padding-bottom: 20px;
+            position: relative; z-index: 5000; display: inline-block; 
+        }
+
+        .admin-panel { 
+            display: none; width: 90%; max-width: 550px; 
+            background: #0f172a; border: 2px solid #ef4444; 
+            border-radius: 12px; padding: 20px; margin-top: 20px; 
+            box-shadow: 0 0 30px rgba(239,68,68,0.25); box-sizing: border-box; 
+            position: relative; z-index: 5001; 
+        }
+
+        .admin-panel h3 { color: #ef4444; margin-top: 0; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .admin-panel input, .admin-panel select, .admin-panel button { width: 100%; padding: 11px; margin: 8px 0; border-radius: 6px; border: 1px solid #334155; background: #020617; color: white; box-sizing: border-box; font-size: 0.9rem; }
+        .admin-panel button { background: #ef4444; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
+        .admin-panel button:hover { background: #dc2626; }
+        
+        .admin-panel input[type="file"] { background: #1e293b; border: 1px dashed var(--neon-blue); cursor: pointer; padding: 15px; }
 
         /* LISTAS DE GESTIÓN INTERNA */
         .manager-container {
@@ -244,7 +450,6 @@
         @media (max-width: 768px) { 
             .dashboard-content { grid-template-columns: 1fr; } 
             .info-column { border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; } 
-            .video-control-row { grid-template-columns: 1fr; }
         }
     </style>
 
@@ -348,58 +553,26 @@
         <div id="admin-actions-box" style="display: none;">
             <p style="color: #22c55e; font-weight: bold; margin-top:0;">✓ Conexión establecida</p>
             
-            <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Cargar Nuevas Fotografías a la Web</h4>
+            <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Cargar Nuevas Fotografías</h4>
+            <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 8px 0;">Selecciona una o varias fotos y define su destino:</p>
+            
             <input type="file" id="upload-file-input" accept="image/*" multiple>
+            
             <select id="upload-destination">
                 <option value="trabajos">Destino: Carrusel de Trabajos Realizados</option>
                 <option value="capturas">Destino: Carrusel de Opiniones (WhatsApp)</option>
             </select>
             <button type="button" id="btn-publicar-auto" style="background: var(--neon-blue); color: black;" onclick="subirImagenesMultiples()">Subir y Publicar al Instante</button>
 
-            <div class="video-maker-box">
-                <h4 style="color: #22c55e; margin-top:0; margin-bottom:10px;">🎬 Reel Studio Pro (Transiciones + Audio Sincro)</h4>
-                <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 10px 0;">Crea videos dinámicos con música de fondo. El audio se adaptará solo y se desvanecerá al finalizar el video automáticamente.</p>
-                
-                <label style="font-size:0.8rem; color:#cbd5e1;">1. Selecciona las fotos:</label>
-                <input type="file" id="maker-photos" accept="image/*" multiple>
-                
-                <label style="font-size:0.8rem; color:#cbd5e1; margin-top:5px; display:block;">2. Elige el estilo de Transición / Efecto:</label>
-                <select id="maker-effect" style="padding:6px; margin:4px 0;">
-                    <option value="fade">Efecto 1: Desvanecimiento Cruzado (Suave)</option>
-                    <option value="zoom">Efecto 2: Zoom Dinámico (Enfoque Kinetic)</option>
-                    <option value="slide">Efecto 3: Desplazamiento Lateral (Cine)</option>
-                    <option value="flash">Efecto 4: Destello de Luz (Estilo Reel)</option>
-                    <option value="none">Efecto 5: Corte Directo (Clásico)</option>
-                </select>
-
-                <label style="font-size:0.8rem; color:#cbd5e1; margin-top:5px; display:block;">3. Sube la música (.mp3) - Opcional:</label>
-                <input type="file" id="maker-audio" accept="audio/mp3, audio/*">
-
-                <div class="video-control-row">
-                    <div>
-                        <label style="font-size:0.75rem; color:#94a3b8;">Segundos por foto:</label>
-                        <input type="number" id="maker-duration" value="3" min="1" max="10" style="padding:6px; margin:4px 0;">
-                    </div>
-                    <div>
-                        <label style="font-size:0.75rem; color:#94a3b8;">Ajuste de Marca:</label>
-                        <select id="maker-watermark" style="padding:6px; margin:4px 0;">
-                            <option value="si">Con Logo FRIOTECX</option>
-                            <option value="no">Sin Logo (Limpio)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <canvas id="canvas-render" class="maker-preview-canvas" width="720" height="1280"></canvas>
-                <audio id="audio-player-hidden" style="display:none;" crossorigin="anonymous"></audio>
-
-                <button type="button" id="btn-render-video" style="background: #22c55e; color: black; font-weight: bold; margin-top:10px;" onclick="procesarYCrearVideo()">⚡ Procesar y Descargar MP4</button>
+            <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Fotos de Trabajos:</p>
+            <div class="manager-container" id="lista-borrar-trabajos">
+                <p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p>
             </div>
 
-            <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Fotos de Trabajos:</p>
-            <div class="manager-container" id="lista-borrar-trabajos"><p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p></div>
-
             <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Capturas de Clientes:</p>
-            <div class="manager-container" id="lista-borrar-capturas"><p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p></div>
+            <div class="manager-container" id="lista-borrar-capturas">
+                <p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p>
+            </div>
 
             <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Agregar Nuevo Servicio al Menú</h4>
             <input type="text" id="new-service-name" placeholder="Ej: • Servicio Técnico Industrial">
@@ -411,7 +584,9 @@
             <button type="button" style="background: #22c55e; color: white;" onclick="agregarServicioFirebase()">Agregar Servicio al Menú</button>
 
             <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Servicios del Menú:</p>
-            <div class="manager-container" id="lista-borrar-servicios"><p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p></div>
+            <div class="manager-container" id="lista-borrar-servicios">
+                <p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p>
+            </div>
         </div>
     </div>
 
@@ -430,9 +605,12 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
+        // 💥 CLAVE DE IMGBB TOTALMENTE CONFIGURADA Y REUBICADA
         const IMGBB_API_KEY = "0a5e7954b4b9fed188e15e4e5532e57b";
 
-        let indexTrabajos = 0; let indexCapturas = 0;
+        // Variables de Control para los tiempos de los carruseles
+        let indexTrabajos = 0;
+        let indexCapturas = 0;
 
         function rotarTrabajos() {
             const list = document.querySelectorAll('#contenedor-trabajos .carousel-slide');
@@ -454,6 +632,7 @@
             setTimeout(rotarCapturas, 5500);
         }
 
+        // Desplegables
         function toggleMenu(menuId, btn) {
             document.querySelectorAll('.dropdown-content').forEach(m => { if(m.id !== menuId) m.classList.remove('show'); });
             document.querySelectorAll('.dropbtn').forEach(b => { if(b !== btn) b.classList.remove('active'); });
@@ -468,6 +647,7 @@
             }
         }
 
+        // Tasa Oficial BCV
         async function actualizarTasa() {
             try {
                 const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
@@ -477,18 +657,22 @@
         }
         actualizarTasa();
 
+        // Nieve Estilizada
         const fxContainer = document.getElementById('fx-container');
         function crearCopo() {
-            const copo = document.createElement('div'); copo.classList.add('snowflake');
+            const copo = document.createElement('div');
+            copo.classList.add('snowflake');
             const tam = Math.random() * 3 + 2;
             copo.style.width = tam + 'px'; copo.style.height = tam + 'px';
             copo.style.left = Math.random() * 100 + 'vw';
-            const dur = Math.random() * 5 + 5; copo.style.animationDuration = dur + 's';
+            const dur = Math.random() * 5 + 5;
+            copo.style.animationDuration = dur + 's';
             fxContainer.appendChild(copo);
             setTimeout(() => copo.remove(), dur * 1000);
         }
         setInterval(crearCopo, 500);
 
+        // LOGIN Y SISTEMA DE ADMINISTRACIÓN
         function toggleAdminPanel() { document.getElementById('panel-admin').classList.toggle('show'); }
 
         function loginAdministrador() {
@@ -502,266 +686,54 @@
                 .catch(err => alert("Acceso denegado."));
         }
 
+        // NUEVA FUNCIÓN OPTIMIZADA PARA PROCESAR MÚLTIPLES IMÁGENES
         async function subirImagenesMultiples() {
             const fileInput = document.getElementById('upload-file-input');
             const destino = document.getElementById('upload-destination').value;
             const boton = document.getElementById('btn-publicar-auto');
 
             if (fileInput.files.length === 0) return alert("Por favor, selecciona al menos una foto.");
-            const archivos = fileInput.files; 
+            
+            if (IMGBB_API_KEY === "PEGA_AQUI_TU_API_KEY_DE_IMGBB" || !IMGBB_API_KEY) {
+                return alert("Falta configurar la API Key de ImgBB.");
+            }
+
+            const archivos = fileInput.files;
             const totalArchivos = archivos.length;
             boton.disabled = true;
 
+            // Bucle secuencial para procesar archivo por archivo
             for (let i = 0; i < totalArchivos; i++) {
                 const file = archivos[i];
                 boton.innerText = `Subiendo ${i + 1} de ${totalArchivos}...`;
-                const formData = new FormData(); 
+
+                const formData = new FormData();
                 formData.append("image", file);
 
                 try {
-                    const respuesta = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { 
-                        method: "POST", 
-                        body: formData 
-                    });
+                    const respuesta = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
                     const resultadoJson = await respuesta.json();
 
                     if (resultadoJson.success) {
+                        const urlLimpia = resultadoJson.data.url;
+
+                        // Guarda el documento en la colección asignada
                         await db.collection(destino).add({
-                            url: resultadoJson.data.url,
+                            url: urlLimpia,
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
-                    }
-                } catch (error) { 
-                    console.error(error);
-                    alert(`Error en archivo ${file.name}: ${error.message}`); 
-                }
-            }
-
-            alert(`¡Completado! Se publicaron ${totalArchivos} fotos en tu web.`);
-            fileInput.value = ''; 
-            boton.innerText = "Subir y Publicar al Instante"; 
-            boton.disabled = false;
-        }
-
-        // ================================================================
-        // ENGINE AVANZADO DE RENDER: COMPATIBILIDAD ULTRA-BLINDADA
-        // ================================================================
-        async function procesarYCrearVideo() {
-            const photoInput = document.getElementById('maker-photos');
-            const audioInput = document.getElementById('maker-audio');
-            const efectoSeleccionado = document.getElementById('maker-effect').value;
-            const secPorFoto = parseInt(document.getElementById('maker-duration').value) || 3;
-            const conLogo = document.getElementById('maker-watermark').value;
-            const btn = document.getElementById('btn-render-video');
-            const audioPlayer = document.getElementById('audio-player-hidden');
-
-            if (photoInput.files.length === 0) return alert("Selecciona al menos una foto para armar el video.");
-
-            btn.disabled = true;
-            btn.innerText = "Fabricando Reel Cinematográfico...";
-
-            const canvas = document.getElementById('canvas-render');
-            const ctx = canvas.getContext('2d');
-            canvas.style.display = "block"; 
-
-            const cargarImagen = file => new Promise((res) => {
-                const reader = new FileReader();
-                reader.onload = e => { 
-                    const img = new Image(); 
-                    img.onload = () => res(img); 
-                    img.src = e.target.result; 
-                };
-                reader.readAsDataURL(file);
-            });
-
-            const imagenes = [];
-            for (let file of photoInput.files) {
-                const imgCargada = await cargarImagen(file);
-                imagenes.push(imgCargada);
-            }
-
-            const totalDuracionVideo = imagenes.length * secPorFoto;
-            
-            // Configurar canales combinados de captura estables
-            const tracksDeCaptura = [];
-            const canvasStream = canvas.captureStream(30); 
-            tracksDeCaptura.push(canvasStream.getVideoTracks()[0]);
-
-            let tieneAudio = false;
-            if (audioInput.files.length > 0) {
-                const archivoAudio = audioInput.files[0];
-                audioPlayer.src = URL.createObjectURL(archivoAudio);
-                audioPlayer.volume = 1.0;
-                
-                try {
-                    await audioPlayer.play();
-                } catch(e) {
-                    console.log("Audio esperando interacción.");
-                }
-                
-                const ctxAudioNativo = new (window.AudioContext || window.webkitAudioContext)();
-                const fuenteOrigen = ctxAudioNativo.createMediaElementSource(audioPlayer);
-                const destinoFlujo = ctxAudioNativo.createMediaStreamDestination();
-                
-                fuenteOrigen.connect(destinoFlujo);
-                fuenteOrigen.connect(ctxAudioNativo.destination);
-                
-                tracksDeCaptura.push(destinoFlujo.getStream().getAudioTracks()[0]);
-                tieneAudio = true;
-            }
-
-            const streamCombinadoFinal = new MediaStream(tracksDeCaptura);
-            
-            // SELECCIÓN AUTOMÁTICA DE FORMATO COMPATIBLE SEGÚN EL DISPOSITIVO
-            let opcionesMime = { mimeType: 'video/mp4;codecs=avc1' };
-            if (!MediaRecorder.isTypeSupported(opcionesMime.mimeType)) {
-                opcionesMime = { mimeType: 'video/webm;codecs=vp9,opus' };
-            }
-            if (!MediaRecorder.isTypeSupported(opcionesMime.mimeType)) {
-                opcionesMime = { mimeType: 'video/webm;codecs=vp8' };
-            }
-            if (!MediaRecorder.isTypeSupported(opcionesMime.mimeType)) {
-                opcionesMime = {}; 
-            }
-
-            let recorder;
-            try {
-                recorder = new MediaRecorder(streamCombinadoFinal, opcionesMime);
-            } catch (e) {
-                recorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm' });
-            }
-
-            const chunks = [];
-            recorder.ondataavailable = e => {
-                if (e.data && e.data.size > 0) chunks.push(e.data);
-            };
-
-            recorder.onstop = () => {
-                if(tieneAudio) {
-                    audioPlayer.pause();
-                    audioPlayer.src = "";
-                }
-
-                const tipoFinal = recorder.mimeType.includes('mp4') ? 'mp4' : 'webm';
-                const blobVideo = new Blob(chunks, { type: recorder.mimeType || 'video/mp4' });
-                const urlDescarga = URL.createObjectURL(blobVideo);
-                
-                const a = document.createElement('a');
-                a.href = urlDescarga;
-                a.download = `FRIOTECX_Studio_Reel_${Date.now()}.${tipoFinal}`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-
-                canvas.style.display = "none";
-                btn.disabled = false;
-                btn.innerText = "⚡ Procesar y Descargar MP4";
-                alert("¡Video cinematográfico descargado con éxito!");
-            };
-
-            recorder.start(1000); 
-            let tiempoInicio = Date.now();
-            
-            function dibujarFotograma() {
-                let tiempoTranscurrido = (Date.now() - tiempoInicio) / 1000;
-                
-                if (tiempoTranscurrido >= totalDuracionVideo) {
-                    if (recorder.state !== "inactive") recorder.stop();
-                    return;
-                }
-
-                if (tieneAudio && tiempoTranscurrido >= (totalDuracionVideo - 2)) {
-                    let tiempoRestante = totalDuracionVideo - tiempoTranscurrido; 
-                    audioPlayer.volume = Math.max(0, tiempoRestante / 2); 
-                }
-
-                let fotoActualIndex = Math.floor(tiempoTranscurrido / secPorFoto);
-                if (fotoActualIndex >= imagenes.length) fotoActualIndex = imagenes.length - 1;
-                
-                let imgActual = imagenes[fotoActualIndex];
-                let tiempoDentroDeFoto = tiempoTranscurrido % secPorFoto;
-
-                ctx.fillStyle = "#050a0f";
-                ctx.fillRect(0, 0, 720, 1280);
-
-                ctx.save();
-
-                if (efectoSeleccionado === "fade") {
-                    if (tiempoDentroDeFoto < 0.6 && fotoActualIndex > 0) {
-                        let imgAnterior = imagenes[fotoActualIndex - 1];
-                        pintarImagenEscalada(ctx, canvas, imgAnterior);
-                        ctx.globalAlpha = tiempoDentroDeFoto / 0.6;
-                    }
-                    pintarImagenEscalada(ctx, canvas, imgActual);
-                } 
-                else if (efectoSeleccionado === "zoom") {
-                    let factorZoom = 1 + (tiempoDentroDeFoto / secPorFoto) * 0.12; 
-                    ctx.translate(360, 640);
-                    ctx.scale(factorZoom, factorZoom);
-                    ctx.translate(-360, -640);
-                    pintarImagenEscalada(ctx, canvas, imgActual);
-                } 
-                else if (efectoSeleccionado === "slide") {
-                    if (tiempoDentroDeFoto < 0.5 && fotoActualIndex > 0) {
-                        let progreso = tiempoDentroDeFoto / 0.5;
-                        let desplazaX = (1 - progreso) * 720;
-                        
-                        ctx.save();
-                        ctx.translate(-desplazaX, 0);
-                        pintarImagenEscalada(ctx, canvas, imagenes[fotoActualIndex - 1]);
-                        ctx.restore();
-                        
-                        ctx.save();
-                        ctx.translate(720 - desplazaX, 0);
-                        pintarImagenEscalada(ctx, canvas, imgActual);
-                        ctx.restore();
                     } else {
-                        pintarImagenEscalada(ctx, canvas, imgActual);
+                        alert(`No se pudo subir el archivo: ${file.name}`);
                     }
-                } 
-                else if (efectoSeleccionado === "flash") {
-                    pintarImagenEscalada(ctx, canvas, imgActual);
-                    if (tiempoDentroDeFoto < 0.3) {
-                        let opacidadDestello = 1 - (tiempoDentroDeFoto / 0.3);
-                        ctx.fillStyle = `rgba(255, 255, 255, ${opacidadDestello * 0.75})`;
-                        ctx.fillRect(0, 0, 720, 1280);
-                    }
-                } 
-                else {
-                    pintarImagenEscalada(ctx, canvas, imgActual);
+                } catch (error) {
+                    alert(`Error en el archivo ${file.name}: ${error.message}`);
                 }
-
-                ctx.restore();
-
-                if (conLogo === "si") {
-                    ctx.fillStyle = "rgba(5, 10, 15, 0.75)";
-                    ctx.fillRect(0, 1140, 720, 140);
-                    
-                    ctx.fillStyle = "rgba(0, 212, 255, 0.2)";
-                    ctx.fillRect(40, 1170, 640, 70);
-                    ctx.strokeStyle = "#00d4ff";
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(40, 1170, 640, 70);
-
-                    ctx.fillStyle = "#ffffff";
-                    ctx.font = "bold 28px 'Rajdhani', sans-serif";
-                    ctx.textAlign = "center";
-                    ctx.fillText("❄️ FRIOTECX | REFRIGERACIÓN PROFESIONAL", 360, 1212);
-                }
-
-                requestAnimationFrame(dibujarFotograma);
             }
 
-            function pintarImagenEscalada(contexto, canvasRef, imgObj) {
-                let hRatio = canvasRef.width / imgObj.width;
-                let vRatio = canvasRef.height / imgObj.height;
-                let ratio = Math.min(hRatio, vRatio);
-                let shiftX = (canvasRef.width - imgObj.width * ratio) / 2;
-                let shiftY = (canvasRef.height - imgObj.height * ratio) / 2;
-                contexto.drawImage(imgObj, 0, 0, imgObj.width, imgObj.height, shiftX, shiftY, imgObj.width * ratio, imgObj.height * ratio);
-            }
-
-            requestAnimationFrame(dibujarFotograma);
+            alert(`¡Proceso completado! Se publicaron ${totalArchivos} fotos con éxito.`);
+            fileInput.value = '';
+            boton.innerText = "Subir y Publicar al Instante";
+            boton.disabled = false;
         }
 
         function agregarServicioFirebase() {
@@ -772,72 +744,109 @@
 
             db.collection("menus").add({ name: name, msg: encodeURIComponent(msg), category: cat })
             .then(() => { 
-                alert("Menú actualizado."); 
+                alert("Menú actualizado con el nuevo servicio."); 
                 document.getElementById('new-service-name').value = '';
                 document.getElementById('new-service-msg').value = '';
             });
         }
 
+        // ACCIONES DE ELIMINACIÓN GENERALES
         function borrarElementoFirebase(coleccion, idDoc) {
-            if(confirm(`¿Deseas borrar este elemento permanentemente?`)) {
-                db.collection(coleccion).doc(idDoc).delete().then(() => alert("Eliminado."));
+            if(confirm(`¿Estás seguro de que deseas borrar este elemento de forma permanente?`)) {
+                db.collection(coleccion).doc(idDoc).delete()
+                .then(() => alert("Eliminado correctamente."))
+                .catch(err => alert("Error: " + err.message));
             }
         }
 
+        // ESCUCHADORES MAESTROS EN TIEMPO REAL
         function sincronizarBaseDeDatos() {
+            // 1. Escuchar Carrusel de Trabajos Realizados
             db.collection("trabajos").orderBy("timestamp", "desc").onSnapshot(snap => {
                 const contenedor = document.getElementById('contenedor-trabajos');
                 const listaBorrar = document.getElementById('lista-borrar-trabajos');
-                contenedor.innerHTML = ''; listaBorrar.innerHTML = '';
+                contenedor.innerHTML = '';
+                listaBorrar.innerHTML = '';
+
                 if (!snap.empty) {
                     snap.forEach((doc, i) => {
                         const d = doc.data();
                         contenedor.innerHTML += `<div class="carousel-slide ${i === 0 ? 'active' : ''}"><img src="${d.url}"></div>`;
-                        listaBorrar.innerHTML += `<div class="manager-item"><img src="${d.url}"><span>Trabajo #${snap.size - i}</span><button class="btn-delete-small" onclick="borrarElementoFirebase('trabajos', '${doc.id}')">Eliminar</button></div>`;
+                        listaBorrar.innerHTML += `
+                            <div class="manager-item">
+                                <img src="${d.url}">
+                                <span>Trabajo #${snap.size - i}</span>
+                                <button class="btn-delete-small" onclick="borrarElementoFirebase('trabajos', '${doc.id}')">Eliminar</button>
+                            </div>`;
                     });
                 } else {
-                    contenedor.innerHTML = '<div class="carousel-slide active"><p style="color: #64748b; padding:20px; text-align:center;">No hay fotos cargadas.</p></div>';
-                    listaBorrar.innerHTML = '<p style="color:#64748b; text-align:center;">No hay registros.</p>';
+                    contenedor.innerHTML = '<div class="carousel-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay fotos cargadas. Sube tus trabajos desde el panel.</p></div>';
+                    listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay trabajos registrados.</p>';
                 }
             });
 
+            // 2. Escuchar Carrusel de Capturas de Clientes
             db.collection("capturas").orderBy("timestamp", "desc").onSnapshot(snap => {
                 const contenedor = document.getElementById('contenedor-capturas');
                 const listaBorrar = document.getElementById('lista-borrar-capturas');
-                contenedor.innerHTML = ''; listaBorrar.innerHTML = '';
+                contenedor.innerHTML = '';
+                listaBorrar.innerHTML = '';
+
                 if (!snap.empty) {
                     snap.forEach((doc, i) => {
                         const d = doc.data();
                         contenedor.innerHTML += `<div class="review-slide ${i === 0 ? 'active' : ''}"><img src="${d.url}"></div>`;
-                        listaBorrar.innerHTML += `<div class="manager-item"><img src="${d.url}"><span>Captura #${snap.size - i}</span><button class="btn-delete-small" onclick="borrarElementoFirebase('capturas', '${doc.id}')">Eliminar</button></div>`;
+                        listaBorrar.innerHTML += `
+                            <div class="manager-item">
+                                <img src="${d.url}">
+                                <span>Captura #${snap.size - i}</span>
+                                <button class="btn-delete-small" onclick="borrarElementoFirebase('capturas', '${doc.id}')">Eliminar</button>
+                            </div>`;
                     });
                 } else {
-                    contenedor.innerHTML = '<div class="review-slide active"><p style="color: #64748b; padding:20px; text-align:center;">No hay opiniones.</p></div>';
-                    listaBorrar.innerHTML = '<p style="color:#64748b; text-align:center;">No hay registros.</p>';
+                    contenedor.innerHTML = '<div class="review-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay opiniones disponibles.</p></div>';
+                    listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay capturas registradas.</p>';
                 }
             });
 
+            // 3. Escuchar Menús y Enlaces Dinámicos
             db.collection("menus").onSnapshot(snap => {
                 const menuServ = document.getElementById('menu-servicios');
                 const menuInst = document.getElementById('menu-instala');
                 const listaBorrarServ = document.getElementById('lista-borrar-servicios');
+                
                 document.querySelectorAll('.dynamic-service').forEach(el => el.remove());
                 listaBorrarServ.innerHTML = '';
+
                 if(!snap.empty) {
                     snap.forEach(doc => {
                         const d = doc.data();
+                        
                         const nLink = document.createElement('a');
-                        nLink.href = `https://wa.me/584243497259?text=${d.msg}`; nLink.target = "_blank";
-                        nLink.className = "service-link dynamic-service"; nLink.innerText = d.name;
-                        if(d.category === 'servicios') menuServ.appendChild(nLink); else menuInst.appendChild(nLink);
-                        listaBorrarServ.innerHTML += `<div class="manager-item"><span>${d.name}</span><button class="btn-delete-small" onclick="borrarElementoFirebase('menus', '${doc.id}')">Eliminar</button></div>`;
+                        nLink.href = `https://wa.me/584243497259?text=${d.msg}`;
+                        nLink.target = "_blank";
+                        nLink.className = "service-link dynamic-service";
+                        nLink.innerText = d.name;
+                        
+                        if(d.category === 'servicios') menuServ.appendChild(nLink);
+                        else menuInst.appendChild(nLink);
+
+                        listaBorrarServ.innerHTML += `
+                            <div class="manager-item">
+                                <span>${d.name} (${d.category === 'servicios' ? 'Serv.' : 'Inst.'})</span>
+                                <button class="btn-delete-small" onclick="borrarElementoFirebase('menus', '${doc.id}')">Eliminar</button>
+                            </div>`;
                     });
+                } else {
+                    listaBorrarServ.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay servicios dinámicos.</p>';
                 }
             });
         }
         
+        // Inicializar Procesos
         sincronizarBaseDeDatos();
-        setTimeout(rotarTrabajos, 2000); setTimeout(rotarCapturas, 2500);
+        setTimeout(rotarTrabajos, 2000);
+        setTimeout(rotarCapturas, 2500);
     </script>
 </body>
 </html>
