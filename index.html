@@ -404,7 +404,7 @@
             if(list.length > 1) {
                 list.forEach(s => s.classList.remove('active'));
                 indexTrabajos = (indexTrabajos + 1) % list.length;
-                list[indexTrabajos].classList.add('active');
+                if(list[indexTrabajos]) list[indexTrabajos].classList.add('active');
             }
             setTimeout(rotarTrabajos, 4500);
         }
@@ -414,7 +414,7 @@
             if(list.length > 1) {
                 list.forEach(s => s.classList.remove('active'));
                 indexCapturas = (indexCapturas + 1) % list.length;
-                list[indexCapturas].classList.add('active');
+                if(list[indexCapturas]) list[indexCapturas].classList.add('active');
             }
             setTimeout(rotarCapturas, 5500);
         }
@@ -481,7 +481,7 @@
 
             if (fileInput.files.length === 0) return alert("Por favor, selecciona al menos una foto.");
             
-            if (IMGBB_API_KEY === "PEGA_AQUI_TU_API_KEY_DE_IMGBB" || !IMGBB_API_KEY) {
+            if (!IMGBB_API_KEY) {
                 return alert("Falta configurar la API Key de ImgBB.");
             }
 
@@ -489,7 +489,6 @@
             const totalArchivos = archivos.length;
             boton.disabled = true;
 
-            // Bucle secuencial para procesar archivo por archivo
             for (let i = 0; i < totalArchivos; i++) {
                 const file = archivos[i];
                 boton.innerText = `Subiendo ${i + 1} de ${totalArchivos}...`;
@@ -504,7 +503,6 @@
                     if (resultadoJson.success) {
                         const urlLimpia = resultadoJson.data.url;
 
-                        // Guarda el documento en la colección asignada
                         await db.collection(destino).add({
                             url: urlLimpia,
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
@@ -537,7 +535,6 @@
             });
         }
 
-        // ACCIONES DE ELIMINACIÓN GENERALES
         function borrarElementoFirebase(coleccion, idDoc) {
             if(confirm(`¿Estás seguro de que deseas borrar este elemento de forma permanente?`)) {
                 db.collection(coleccion).doc(idDoc).delete()
@@ -556,15 +553,17 @@
                 listaBorrar.innerHTML = '';
 
                 if (!snap.empty) {
-                    snap.forEach((doc, i) => {
+                    let index = 0;
+                    snap.forEach((doc) => {
                         const d = doc.data();
-                        contenedor.innerHTML += `<div class="carousel-slide ${i === 0 ? 'active' : ''}"><img src="${d.url}"></div>`;
+                        contenedor.innerHTML += `<div class="carousel-slide ${index === 0 ? 'active' : ''}"><img src="${d.url}" style="width:100%; height:100%; object-fit:contain;"></div>`;
                         listaBorrar.innerHTML += `
                             <div class="manager-item">
                                 <img src="${d.url}">
-                                <span>Trabajo #${snap.size - i}</span>
+                                <span>Trabajo #${snap.size - index}</span>
                                 <button class="btn-delete-small" onclick="borrarElementoFirebase('trabajos', '${doc.id}')">Eliminar</button>
                             </div>`;
+                        index++;
                     });
                 } else {
                     contenedor.innerHTML = '<div class="carousel-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay fotos cargadas. Sube tus trabajos desde el panel.</p></div>';
@@ -580,15 +579,17 @@
                 listaBorrar.innerHTML = '';
 
                 if (!snap.empty) {
-                    snap.forEach((doc, i) => {
+                    let index = 0;
+                    snap.forEach((doc) => {
                         const d = doc.data();
-                        contenedor.innerHTML += `<div class="review-slide ${i === 0 ? 'active' : ''}"><img src="${d.url}"></div>`;
+                        contenedor.innerHTML += `<div class="review-slide ${index === 0 ? 'active' : ''}"><img src="${d.url}" style="width:100%; height:100%; object-fit:contain; display:block;"></div>`;
                         listaBorrar.innerHTML += `
                             <div class="manager-item">
                                 <img src="${d.url}">
-                                <span>Captura #${snap.size - i}</span>
+                                <span>Captura #${snap.size - index}</span>
                                 <button class="btn-delete-small" onclick="borrarElementoFirebase('capturas', '${doc.id}')">Eliminar</button>
                             </div>`;
+                        index++;
                     });
                 } else {
                     contenedor.innerHTML = '<div class="review-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay opiniones disponibles.</p></div>';
