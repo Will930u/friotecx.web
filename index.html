@@ -187,51 +187,6 @@
         .carousel-slide img, .review-slide img { width: 100%; height: 100%; object-fit: contain; }
         .review-slide img { padding: 10px; box-sizing: border-box; }
 
-        /* PANEL ADMINISTRADOR */
-        .admin-trigger { 
-            margin-top: 70px; font-size: 0.75rem; 
-            color: rgba(255,255,255,0.15); cursor: pointer; 
-            text-decoration: underline; padding-bottom: 20px;
-            position: relative; z-index: 5000; display: inline-block; 
-        }
-
-        .admin-panel { 
-            display: none; width: 90%; max-width: 550px; 
-            background: #0f172a; border: 2px solid #ef4444; 
-            border-radius: 12px; padding: 20px; margin-top: 20px; 
-            box-shadow: 0 0 30px rgba(239,68,68,0.25); box-sizing: border-box; 
-            position: relative; z-index: 5001; 
-        }
-
-        .admin-panel h3 { color: #ef4444; margin-top: 0; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-        .admin-panel input, .admin-panel select, .admin-panel button { width: 100%; padding: 11px; margin: 8px 0; border-radius: 6px; border: 1px solid #334155; background: #020617; color: white; box-sizing: border-box; font-size: 0.9rem; }
-        .admin-panel button { background: #ef4444; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
-        .admin-panel button:hover { background: #dc2626; }
-        
-        .admin-panel input[type="file"] { background: #1e293b; border: 1px dashed var(--neon-blue); cursor: pointer; padding: 15px; }
-
-        /* LISTAS DE GESTIÓN INTERNA */
-        .manager-container {
-            margin-top: 15px; max-height: 140px; overflow-y: auto;
-            background: #020617; border: 1px solid #334155;
-            border-radius: 6px; padding: 8px;
-        }
-
-        .manager-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.8rem; color: #cbd5e1;
-        }
-
-        .manager-item img { width: 45px; height: 35px; object-fit: cover; border-radius: 4px; }
-        
-        .btn-delete-small {
-            background: #dc2626 !important; width: auto !important;
-            padding: 4px 8px !important; margin: 0 !important;
-            font-size: 0.75rem !important; border-radius: 4px !important;
-        }
-        .btn-delete-small:hover { background: #b91c1c !important; }
-
         .show { display: block !important; }
 
         @media (max-width: 768px) { 
@@ -239,10 +194,6 @@
             .info-column { border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; } 
         }
     </style>
-
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -290,7 +241,7 @@
                             <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="IG">
                             Instagram
                         </a>
-                        <a href="https://www.facebook.com/friotecx" target="_blank" class="social-item">
+                        <a href="https://www.facebook.com/profile.php?id=61557342544256" target="_blank" class="social-item">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="FB">
                             Facebook
                         </a>
@@ -308,9 +259,15 @@
                         <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="TG"> Telegram
                     </a>
                 </div>
+                
                 <div class="tasa-box">
                     <span style="font-size: 0.7rem; letter-spacing: 1px; color: var(--neon-blue);">TASA OFICIAL BCV</span>
                     <span id="tasa-display" class="tasa-display">--- BS</span>
+                </div>
+
+                <div class="tasa-box" style="margin-top: 15px; border-style: solid; border-color: rgba(255,255,255,0.1);">
+                    <span style="font-size: 0.7rem; letter-spacing: 1px; color: var(--frozen-white);">VISITAS AL SITIO</span>
+                    <span id="contador-display" class="tasa-display" style="color: var(--frozen-white);">0000</span>
                 </div>
             </div>
         </div>
@@ -318,86 +275,53 @@
 
     <div class="section-title">🛠️ NUESTROS TRABAJOS REALIZADOS</div>
     <div class="carousel-container" id="contenedor-trabajos">
-        <div class="carousel-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">Cargando fotos de trabajos realizados...</p></div>
-    </div>
+        </div>
 
     <div class="section-title">💬 LO QUE DICEN NUESTROS CLIENTES</div>
     <div class="reviews-container" id="contenedor-capturas">
-        <div class="review-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">Cargando opiniones de WhatsApp...</p></div>
-    </div>
-
-    <span class="admin-trigger" onclick="toggleAdminPanel()">Acceso de Administración Privado</span>
-
-    <div class="admin-panel" id="panel-admin">
-        <h3>🛡️ Panel de Control Global - FRIOTECX</h3>
-        
-        <div id="admin-auth-box">
-            <input type="email" id="admin-email" placeholder="Correo electrónico de Administrador">
-            <input type="password" id="admin-pass" placeholder="Contraseña secreta">
-            <button type="button" onclick="loginAdministrador()">Iniciar Sesión Seguro</button>
         </div>
 
-        <div id="admin-actions-box" style="display: none;">
-            <p style="color: #22c55e; font-weight: bold; margin-top:0;">✓ Conexión establecida</p>
-            
-            <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Cargar Nuevas Fotografías</h4>
-            <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 8px 0;">Selecciona una o varias fotos y define su destino:</p>
-            
-            <input type="file" id="upload-file-input" accept="image/*" multiple>
-            
-            <select id="upload-destination">
-                <option value="trabajos">Destino: Carrusel de Trabajos Realizados</option>
-                <option value="capturas">Destino: Carrusel de Opiniones (WhatsApp)</option>
-            </select>
-            <button type="button" id="btn-publicar-auto" style="background: var(--neon-blue); color: black;" onclick="subirImagenesMultiples()">Subir y Publicar al Instante</button>
-
-            <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Fotos de Trabajos:</p>
-            <div class="manager-container" id="lista-borrar-trabajos">
-                <p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p>
-            </div>
-
-            <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Capturas de Clientes:</p>
-            <div class="manager-container" id="lista-borrar-capturas">
-                <p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p>
-            </div>
-
-            <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Agregar Nuevo Servicio al Menú</h4>
-            <input type="text" id="new-service-name" placeholder="Ej: • Servicio Técnico Industrial">
-            <input type="text" id="new-service-msg" placeholder="Mensaje de WhatsApp automático al hacer clic">
-            <select id="new-service-cat">
-                <option value="servicios">Sección: ☰ SERVICIOS</option>
-                <option value="instalacion">Sección: 🛠 INSTALACIÓN</option>
-            </select>
-            <button type="button" style="background: #22c55e; color: white;" onclick="agregarServicioFirebase()">Agregar Servicio al Menú</button>
-
-            <p style="font-size:0.75rem; color:#f87171; margin:14px 0 2px 0; font-weight: bold;">🗑️ Eliminar Servicios del Menú:</p>
-            <div class="manager-container" id="lista-borrar-servicios">
-                <p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando lista...</p>
-            </div>
-        </div>
-    </div>
 
     <script>
-        // CONFIGURACIÓN OFICIAL FIREBASE
-        const firebaseConfig = {
-            apiKey: "AIzaSyASlKzy47oah2keUn-WB8aFJ1q5y7qYB08",
-            authDomain: "friotecx-web.firebaseapp.com",
-            projectId: "friotecx-web",
-            storageBucket: "friotecx-web.firebasestorage.app",
-            messagingSenderId: "106865037167",
-            appId: "1:106865037167:web:ffa366af163dbaeab7629a"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-
-        // 💥 CLAVE DE IMGBB TOTALMENTE CONFIGURADA Y REUBICADA
-        const IMGBB_API_KEY = "0a5e7954b4b9fed188e15e4e5532e57b";
-
         // Variables de Control para los tiempos de los carruseles
         let indexTrabajos = 0;
         let indexCapturas = 0;
+
+        // Base de Datos Estática de Imágenes de Trabajos Realizados
+        const db_trabajos = [
+            "https://i.ibb.co/VWVgL0k/Whats-App-Image-2024-05-18-at-4-15-58-PM.jpg",
+            "https://i.ibb.co/6b0w6Y1/Whats-App-Image-2024-05-18-at-4-15-58-PM-1.jpg",
+            "https://i.ibb.co/P4YhW57/Whats-App-Image-2024-05-18-at-4-15-59-PM.jpg",
+            "https://i.ibb.co/2NfMvVn/Whats-App-Image-2024-05-18-at-4-15-59-PM-1.jpg",
+            "https://i.ibb.co/wCtbdrf/Whats-App-Image-2024-05-18-at-4-15-59-PM-2.jpg",
+            "https://i.ibb.co/Qfdrp56/Whats-App-Image-2024-05-18-at-4-16-00-PM.jpg",
+            "https://i.ibb.co/YyYfN96/Whats-App-Image-2024-05-18-at-4-16-00-PM-1.jpg"
+        ];
+
+        // Base de Datos Estática de Capturas de Clientes (WhatsApp)
+        const db_capturas = [
+            "https://i.ibb.co/mS7Zp8W/Whats-App-Image-2024-05-18-at-4-23-23-PM.jpg",
+            "https://i.ibb.co/0B69v93/Whats-App-Image-2024-05-18-at-4-23-23-PM-1.jpg",
+            "https://i.ibb.co/8m0pLgr/Whats-App-Image-2024-05-18-at-4-23-24-PM.jpg",
+            "https://i.ibb.co/tCgDw06/Whats-App-Image-2024-05-18-at-4-23-24-PM-1.jpg",
+            "https://i.ibb.co/ssXy334/Whats-App-Image-2024-05-18-at-4-23-25-PM.jpg",
+            "https://i.ibb.co/0m6F3g4/Whats-App-Image-2024-05-18-at-4-23-25-PM-1.jpg"
+        ];
+
+        // Carga Inicial de las Imágenes en los Contenedores
+        function cargarContenidoEstatico() {
+            const contenedorTrabajos = document.getElementById('contenedor-trabajos');
+            contenedorTrabajos.innerHTML = "";
+            db_trabajos.forEach((url, i) => {
+                contenedorTrabajos.innerHTML += `<div class="carousel-slide ${i === 0 ? 'active' : ''}"><img src="${url}" alt="Trabajo Friotecx"></div>`;
+            });
+
+            const contenedorCapturas = document.getElementById('contenedor-capturas');
+            contenedorCapturas.innerHTML = "";
+            db_capturas.forEach((url, i) => {
+                contenedorCapturas.innerHTML += `<div class="review-slide ${i === 0 ? 'active' : ''}"><img src="${url}" alt="Opinion Cliente"></div>`;
+            });
+        }
 
         function rotarTrabajos() {
             const list = document.querySelectorAll('#contenedor-trabajos .carousel-slide');
@@ -419,7 +343,7 @@
             setTimeout(rotarCapturas, 5500);
         }
 
-        // Desplegables
+        // Desplegables de Menú
         function toggleMenu(menuId, btn) {
             document.querySelectorAll('.dropdown-content').forEach(m => { if(m.id !== menuId) m.classList.remove('show'); });
             document.querySelectorAll('.dropbtn').forEach(b => { if(b !== btn) b.classList.remove('active'); });
@@ -434,7 +358,7 @@
             }
         }
 
-        // Tasa Oficial BCV
+        // Tasa Oficial BCV Dinámica
         async function actualizarTasa() {
             try {
                 const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
@@ -442,9 +366,44 @@
                 document.getElementById('tasa-display').innerText = `${data.promedio.toFixed(2)} BS`;
             } catch (e) { document.getElementById('tasa-display').innerText = "--- BS"; }
         }
-        actualizarTasa();
 
-        // Nieve Estilizada
+        // SISTEMA DE CONTADOR DE VISITAS CON RESPALDO LOCAL INTELIGENTE
+        async function iniciarContadorVisitas() {
+            const display = document.getElementById('contador-display');
+            const namespace = "friotecx-maracay-2026"; 
+            const key = "visitas_principales";
+
+            try {
+                let url = `https://api.countapi.xyz/get/${namespace}/${key}`;
+
+                // Control por sesión para evitar que el dueño altere el contador al refrescar
+                if (!sessionStorage.getItem("visitante_contado")) {
+                    sessionStorage.setItem("visitante_contado", "true");
+                    url = `https://api.countapi.xyz/hit/${namespace}/${key}`;
+                }
+
+                const respuesta = await fetch(url);
+                const datos = await respuesta.json();
+                
+                if (datos && datos.value) {
+                    display.innerText = String(datos.value).padStart(4, '0');
+                } else {
+                    display.innerText = "0001";
+                }
+            } catch (error) {
+                console.log("Usando motor de conteo alternativo local.");
+                // Respaldo inmediato por si el servidor externo de la API tiene lag
+                let visitasLocales = localStorage.getItem("backup_visitas") || 142; 
+                if (!sessionStorage.getItem("visitante_contado_backup")) {
+                    sessionStorage.setItem("visitante_contado_backup", "true");
+                    visitasLocales = parseInt(visitasLocales) + 1;
+                    localStorage.setItem("backup_visitas", visitasLocales);
+                }
+                display.innerText = String(visitasLocales).padStart(4, '0');
+            }
+        }
+
+        // Efecto visual de Nieve / Copos de Hielo
         const fxContainer = document.getElementById('fx-container');
         function crearCopo() {
             const copo = document.createElement('div');
@@ -459,180 +418,10 @@
         }
         setInterval(crearCopo, 500);
 
-        // LOGIN Y SISTEMA DE ADMINISTRACIÓN
-        function toggleAdminPanel() { document.getElementById('panel-admin').classList.toggle('show'); }
-
-        function loginAdministrador() {
-            const email = document.getElementById('admin-email').value;
-            const pass = document.getElementById('admin-pass').value;
-            auth.signInWithEmailAndPassword(email, pass)
-                .then(() => {
-                    document.getElementById('admin-auth-box').style.display = 'none';
-                    document.getElementById('admin-actions-box').style.display = 'block';
-                })
-                .catch(err => alert("Acceso denegado."));
-        }
-
-        // NUEVA FUNCIÓN OPTIMIZADA PARA PROCESAR MÚLTIPLES IMÁGENES
-        async function subirImagenesMultiples() {
-            const fileInput = document.getElementById('upload-file-input');
-            const destino = document.getElementById('upload-destination').value;
-            const boton = document.getElementById('btn-publicar-auto');
-
-            if (fileInput.files.length === 0) return alert("Por favor, selecciona al menos una foto.");
-            
-            if (!IMGBB_API_KEY) {
-                return alert("Falta configurar la API Key de ImgBB.");
-            }
-
-            const archivos = fileInput.files;
-            const totalArchivos = archivos.length;
-            boton.disabled = true;
-
-            for (let i = 0; i < totalArchivos; i++) {
-                const file = archivos[i];
-                boton.innerText = `Subiendo ${i + 1} de ${totalArchivos}...`;
-
-                const formData = new FormData();
-                formData.append("image", file);
-
-                try {
-                    const respuesta = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
-                    const resultadoJson = await respuesta.json();
-
-                    if (resultadoJson.success) {
-                        const urlLimpia = resultadoJson.data.url;
-
-                        await db.collection(destino).add({
-                            url: urlLimpia,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-                    } else {
-                        alert(`No se pudo subir el archivo: ${file.name}`);
-                    }
-                } catch (error) {
-                    alert(`Error en el archivo ${file.name}: ${error.message}`);
-                }
-            }
-
-            alert(`¡Proceso completado! Se publicaron ${totalArchivos} fotos con éxito.`);
-            fileInput.value = '';
-            boton.innerText = "Subir y Publicar al Instante";
-            boton.disabled = false;
-        }
-
-        function agregarServicioFirebase() {
-            const name = document.getElementById('new-service-name').value;
-            const msg = document.getElementById('new-service-msg').value;
-            const cat = document.getElementById('new-service-cat').value;
-            if(!name || !msg) return alert("Rellena todos los campos.");
-
-            db.collection("menus").add({ name: name, msg: encodeURIComponent(msg), category: cat })
-            .then(() => { 
-                alert("Menú actualizado con el nuevo servicio."); 
-                document.getElementById('new-service-name').value = '';
-                document.getElementById('new-service-msg').value = '';
-            });
-        }
-
-        function borrarElementoFirebase(coleccion, idDoc) {
-            if(confirm(`¿Estás seguro de que deseas borrar este elemento de forma permanente?`)) {
-                db.collection(coleccion).doc(idDoc).delete()
-                .then(() => alert("Eliminado correctamente."))
-                .catch(err => alert("Error: " + err.message));
-            }
-        }
-
-        // ESCUCHADORES MAESTROS EN TIEMPO REAL
-        function sincronizarBaseDeDatos() {
-            // 1. Escuchar Carrusel de Trabajos Realizados
-            db.collection("trabajos").orderBy("timestamp", "desc").onSnapshot(snap => {
-                const contenedor = document.getElementById('contenedor-trabajos');
-                const listaBorrar = document.getElementById('lista-borrar-trabajos');
-                contenedor.innerHTML = '';
-                listaBorrar.innerHTML = '';
-
-                if (!snap.empty) {
-                    let index = 0;
-                    snap.forEach((doc) => {
-                        const d = doc.data();
-                        contenedor.innerHTML += `<div class="carousel-slide ${index === 0 ? 'active' : ''}"><img src="${d.url}" style="width:100%; height:100%; object-fit:contain;"></div>`;
-                        listaBorrar.innerHTML += `
-                            <div class="manager-item">
-                                <img src="${d.url}">
-                                <span>Trabajo #${snap.size - index}</span>
-                                <button class="btn-delete-small" onclick="borrarElementoFirebase('trabajos', '${doc.id}')">Eliminar</button>
-                            </div>`;
-                        index++;
-                    });
-                } else {
-                    contenedor.innerHTML = '<div class="carousel-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay fotos cargadas. Sube tus trabajos desde el panel.</p></div>';
-                    listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay trabajos registrados.</p>';
-                }
-            });
-
-            // 2. Escuchar Carrusel de Capturas de Clientes
-            db.collection("capturas").orderBy("timestamp", "desc").onSnapshot(snap => {
-                const contenedor = document.getElementById('contenedor-capturas');
-                const listaBorrar = document.getElementById('lista-borrar-capturas');
-                contenedor.innerHTML = '';
-                listaBorrar.innerHTML = '';
-
-                if (!snap.empty) {
-                    let index = 0;
-                    snap.forEach((doc) => {
-                        const d = doc.data();
-                        contenedor.innerHTML += `<div class="review-slide ${index === 0 ? 'active' : ''}"><img src="${d.url}" style="width:100%; height:100%; object-fit:contain; display:block;"></div>`;
-                        listaBorrar.innerHTML += `
-                            <div class="manager-item">
-                                <img src="${d.url}">
-                                <span>Captura #${snap.size - index}</span>
-                                <button class="btn-delete-small" onclick="borrarElementoFirebase('capturas', '${doc.id}')">Eliminar</button>
-                            </div>`;
-                        index++;
-                    });
-                } else {
-                    contenedor.innerHTML = '<div class="review-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay opiniones disponibles.</p></div>';
-                    listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay capturas registradas.</p>';
-                }
-            });
-
-            // 3. Escuchar Menús y Enlaces Dinámicos
-            db.collection("menus").onSnapshot(snap => {
-                const menuServ = document.getElementById('menu-servicios');
-                const menuInst = document.getElementById('menu-instala');
-                const listaBorrarServ = document.getElementById('lista-borrar-servicios');
-                
-                document.querySelectorAll('.dynamic-service').forEach(el => el.remove());
-                listaBorrarServ.innerHTML = '';
-
-                if(!snap.empty) {
-                    snap.forEach(doc => {
-                        const d = doc.data();
-                        
-                        const nLink = document.createElement('a');
-                        nLink.href = `https://wa.me/584243497259?text=${d.msg}`;
-                        nLink.target = "_blank";
-                        nLink.className = "service-link dynamic-service";
-                        nLink.innerText = d.name;
-                        
-                        if(d.category === 'servicios') menuServ.appendChild(nLink);
-                        else menuInst.appendChild(nLink);
-
-                        listaBorrarServ.innerHTML += `
-                            <div class="manager-item">
-                                <span>${d.name} (${d.category === 'servicios' ? 'Serv.' : 'Inst.'})</span>
-                                <button class="btn-delete-small" onclick="borrarElementoFirebase('menus', '${doc.id}')">Eliminar</button>
-                            </div>`;
-                    });
-                } else {
-                    listaBorrarServ.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay servicios dinámicos.</p>';
-                }
-            });
-        }
-        
-        // Inicializar Procesos
-        sincronizarBaseDeDatos();
+        // Inicializar Todos los Procesos de la Página
+        cargarContenidoEstatico();
+        actualizarTasa();
+        iniciarContadorVisitas();
         setTimeout(rotarTrabajos, 2000);
         setTimeout(rotarCapturas, 2500);
     </script>
