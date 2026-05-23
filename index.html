@@ -151,6 +151,14 @@
             color: #fff; display: block; margin-top: 5px; 
         }
 
+        /* CONTADOR DE VISITAS */
+        .contador-box {
+            margin-top: 15px; padding: 15px; 
+            background: rgba(255,255,255,0.03); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            border-radius: 10px; width: 80%;
+        }
+
         .section-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; color: var(--neon-blue); letter-spacing: 2px; margin-top: 40px; text-transform: uppercase; text-align: center; }
 
         .carousel-container { 
@@ -178,6 +186,7 @@
         .carousel-slide img, .review-slide img { width: 100%; height: 100%; object-fit: contain; }
         .review-slide img { padding: 10px; box-sizing: border-box; }
 
+        /* ESTILOS DEL PANEL DE ADMINISTRACIÓN */
         .admin-trigger { 
             margin-top: 70px; font-size: 0.75rem; 
             color: rgba(255,255,255,0.15); cursor: pointer; 
@@ -246,7 +255,7 @@
                     <div id="menu-instala" class="dropdown-content">
                         <a href="https://wa.me/584243497259?text=Hola,%20quisiera%20instalar%20un%20Split" target="_blank" class="service-link">• Aires tipo Split</a>
                         <a href="https://wa.me/584243497259?text=Hola,%20quisiera%20instalar%20un%20aire%20de%20ventana" target="_blank" class="service-link">• Aires de Ventana</a>
-                        <a href="https://wa.me/584243497259?text=Hola,%20instalación%20equipo%20central" target="_blank" class="service-link">• Unidades Centrales</a>
+                        <a href="https://wa.me/584243497259?text=Hola,%20instalación%20equipo% central" target="_blank" class="service-link">• Unidades Centrales</a>
                     </div>
                 </div>
 
@@ -286,7 +295,7 @@
                     <span id="tasa-display" class="tasa-display">--- BS</span>
                 </div>
 
-                <div class="tasa-box" style="margin-top: 15px; border-style: solid; border-color: rgba(255,255,255,0.1);">
+                <div class="contador-box">
                     <span style="font-size: 0.7rem; letter-spacing: 1px; color: var(--frozen-white);">VISITAS AL SITIO</span>
                     <span id="contador-display" class="tasa-display" style="color: var(--frozen-white);">0000</span>
                 </div>
@@ -356,7 +365,7 @@
     </div>
 
     <script>
-        // CONFIGURACIÓN OFICIAL FIREBASE
+        // CONFIGURACIÓN OFICIAL FIREBASE CONNECTED
         const firebaseConfig = {
             apiKey: "AIzaSyASlKzy47oah2keUn-WB8aFJ1q5y7qYB08",
             authDomain: "friotecx-web.firebaseapp.com",
@@ -409,6 +418,7 @@
             }
         }
 
+        // Tasa BCV Oficial
         async function actualizarTasa() {
             try {
                 const res = await fetch('https://ve.dolarapi.com/v1/dolares/oficial');
@@ -418,36 +428,33 @@
         }
         actualizarTasa();
 
-        // LÓGICA DE CONTADOR EN TIEMPO REAL CON FIREBASE FIRESTORE
+        // CONTADOR DE VISITAS ATÓMICO EN VIVO
         function gestionarContadorVisitasReal() {
-            // Buscamos un documento exclusivo en tu base de datos para las métricas
             const visitasRef = db.collection("metricas").doc("contador");
 
-            // Si es la primera vez que entra en la sesión actual, incrementa (+1) en la nube de Firebase
+            // Incrementa +1 solo una vez por sesión del navegador
             if (!sessionStorage.getItem("web_friotecx_visitada")) {
                 sessionStorage.setItem("web_friotecx_visitada", "true");
-
-                // Comando atómico: incrementa el valor exacto sin importar quién se conecte en paralelo
                 visitasRef.set({
                     total: firebase.firestore.FieldValue.increment(1)
-                }, { merge: true }).catch(err => console.log("Verifica reglas de Firestore:", err));
+                }, { merge: true }).catch(err => console.log("Revisa las reglas de Firestore:", err));
             }
 
-            // Escuchador en tiempo real (.onSnapshot): si otra persona entra, el número cambia al instante en tu pantalla sin refrescar
+            // Escucha en tiempo real cambios de la base de datos
             visitasRef.onSnapshot(doc => {
                 if (doc.exists && doc.data().total !== undefined) {
                     const totalVisitas = doc.data().total;
-                    // Mantiene el diseño estético agregando ceros a la izquierda (Ej: 0045)
                     document.getElementById('contador-display').innerText = String(totalVisitas).padStart(4, '0');
                 } else {
                     document.getElementById('contador-display').innerText = "0001";
                 }
             }, error => {
-                console.log("Error leyendo visitas:", error);
+                console.log("Error leyendo visitas de Firebase:", error);
                 document.getElementById('contador-display').innerText = "---";
             });
         }
 
+        // Efecto visual de copos de hielo
         const fxContainer = document.getElementById('fx-container');
         function crearCopo() {
             const copo = document.createElement('div');
@@ -481,7 +488,6 @@
             const boton = document.getElementById('btn-publicar-auto');
 
             if (fileInput.files.length === 0) return alert("Por favor, selecciona al menos una foto.");
-            if (!IMGBB_API_KEY) return alert("Falta configurar la API Key de ImgBB.");
 
             const archivos = fileInput.files;
             const totalArchivos = archivos.length;
@@ -538,6 +544,7 @@
             }
         }
 
+        // LISTENER EN TIEMPO REAL DESDE FIREBASE FIRESTORE (RESTAURADO)
         function sincronizarBaseDeDatos() {
             db.collection("trabajos").orderBy("timestamp", "desc").onSnapshot(snap => {
                 const contenedor = document.getElementById('contenedor-trabajos');
@@ -549,7 +556,7 @@
                     let index = 0;
                     snap.forEach((doc) => {
                         const d = doc.data();
-                        contenedor.innerHTML += `<div class="carousel-slide ${index === 0 ? 'active' : ''}"><img src="${d.url}" style="width:100%; height:100%; object-fit:contain;"></div>`;
+                        contenedor.innerHTML += `<div class="carousel-slide ${index === 0 ? 'active' : ''}"><img src="${d.url}" alt="Trabajo Friotecx"></div>`;
                         listaBorrar.innerHTML += `
                             <div class="manager-item">
                                 <img src="${d.url}">
@@ -559,7 +566,7 @@
                         index++;
                     });
                 } else {
-                    contenedor.innerHTML = '<div class="carousel-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay fotos cargadas. Sube tus trabajos desde el panel.</p></div>';
+                    contenedor.innerHTML = '<div class="carousel-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay fotos de trabajos cargadas aún.</p></div>';
                     listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay trabajos registrados.</p>';
                 }
             });
@@ -574,7 +581,7 @@
                     let index = 0;
                     snap.forEach((doc) => {
                         const d = doc.data();
-                        contenedor.innerHTML += `<div class="review-slide ${index === 0 ? 'active' : ''}"><img src="${d.url}" style="width:100%; height:100%; object-fit:contain; display:block;"></div>`;
+                        contenedor.innerHTML += `<div class="review-slide ${index === 0 ? 'active' : ''}"><img src="${d.url}" alt="Opinion Cliente"></div>`;
                         listaBorrar.innerHTML += `
                             <div class="manager-item">
                                 <img src="${d.url}">
@@ -584,7 +591,7 @@
                         index++;
                     });
                 } else {
-                    contenedor.innerHTML = '<div class="review-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay opiniones disponibles.</p></div>';
+                    contenedor.innerHTML = '<div class="review-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay opiniones de clientes disponibles.</p></div>';
                     listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay capturas registradas.</p>';
                 }
             });
@@ -623,7 +630,7 @@
         
         // Inicializar Procesos
         sincronizarBaseDeDatos();
-        gestionarContadorVisitasReal(); // <-- Activación del contador real de visitas
+        gestionarContadorVisitasReal();
         setTimeout(rotarTrabajos, 2000);
         setTimeout(rotarCapturas, 2500);
     </script>
