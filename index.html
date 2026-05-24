@@ -211,6 +211,17 @@
         }
 
         .admin-panel h3 { color: #ef4444; margin-top: 0; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        
+        /* CUADRÍCULA DE MÉTRICAS ANALÍTICAS EN PANEL ADMIN */
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;
+        }
+        .stat-card {
+            background: #020617; border: 1px solid #334155; border-radius: 8px; padding: 10px; text-align: center;
+        }
+        .stat-card span { display: block; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; }
+        .stat-card strong { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; color: var(--neon-blue); }
+
         .admin-panel input, .admin-panel select, .admin-panel button { width: 100%; padding: 11px; margin: 8px 0; border-radius: 6px; border: 1px solid #334155; background: #020617; color: white; box-sizing: border-box; font-size: 0.9rem; }
         .admin-panel button { background: #ef4444; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
         .admin-panel button:hover { background: #dc2626; }
@@ -352,11 +363,16 @@
         <div id="admin-actions-box" style="display: none;">
             <p style="color: #22c55e; font-weight: bold; margin-top:0;">✓ Conexión establecida</p>
             
+            <h4 style="color: #22c55e; margin-bottom: 5px;">📊 Estadísticas de Tráfico Real</h4>
+            <div class="stats-grid">
+                <div class="stat-card"><span>Hoy</span><strong id="stat-hoy">0</strong></div>
+                <div class="stat-card"><span>Esta Semana</span><strong id="stat-semana">0</strong></div>
+                <div class="stat-card"><span>Este Mes</span><strong id="stat-mes">0</strong></div>
+                <div class="stat-card"><span>Este Año</span><strong id="stat-ano">0</strong></div>
+            </div>
+
             <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Cargar Nuevas Fotografías</h4>
-            <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 8px 0;">Selecciona una o varias fotos y define su destino:</p>
-            
             <input type="file" id="upload-file-input" accept="image/*" multiple>
-            
             <select id="upload-destination">
                 <option value="trabajos">Destino: Carrusel de Trabajos Realizados</option>
                 <option value="capturas">Destino: Carrusel de Opiniones (WhatsApp)</option>
@@ -474,6 +490,7 @@
                 .then(() => {
                     document.getElementById('admin-auth-box').style.display = 'none';
                     document.getElementById('admin-actions-box').style.display = 'block';
+                    cargarMetricasAdmin(); // Carga el análisis de datos al entrar
                 })
                 .catch(err => alert("Acceso denegado."));
         }
@@ -541,26 +558,85 @@
             }
         }
 
-        // LÓGICA DE CONTROL DE VISITAS REALES CON REGISTRO ATÓMICO
-        function registrarYEscucharVisitas() {
-            const docRef = db.collection("metricas").doc("contador_global");
+        // 🧠 SCRIPT INTELIGENTE: REGISTRO CON FILTRO DE DUPLICADOS Y LOG POR FECHAS
+        function gestionarContadorVisitas() {
+            const ahora = new Date();
+            const ano = ahora.getFullYear();
+            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+            const dia = String(ahora.getDate()).padStart(2, '0');
+            
+            // Generar identificadores de tiempo estructurados
+            const idDia = `${ano}-${mes}-${dia}`;
+            const idMes = `${ano}-${mes}`;
+            const idAno = `${ano}`;
 
-            // 1. Escuchar los cambios en tiempo real para que todos vean el número subir
-            docRef.onSnapshot(doc => {
+            // Calcular número de semana del año actual
+            const inicioAno = new Date(ano, 0, 1);
+            const diasPasados = Math.floor((ahora - inicioAno) / (24 * 60 * 60 * 1000));
+            const idSemana = `${ano}-W${Math.ceil((diasPasados + inicioAno.getDay() + 1) / 7)}`;
+
+            // Escuchar el contador global en tiempo real (Público)
+            db.collection("metricas").doc("global").onSnapshot(doc => {
                 if (doc.exists) {
                     document.getElementById("visitas-display").innerText = doc.data().total || 0;
-                } else {
-                    // Si el documento no existe por ser la primera vez, lo inicializa
-                    docRef.set({ total: 1 });
                 }
             });
 
-            // 2. Incrementar la visita de forma segura en la base de datos (Evita conflictos si entran varios a la vez)
-            docRef.update({
-                total: firebase.firestore.FieldValue.increment(1)
-            }).catch(() => {
-                // Si falla el update porque no existe el documento principal, lo crea con valor 1
-                docRef.set({ total: 1 });
+            // CONTROL DE USUARIO ÚNICO (Filtro por LocalStorage)
+            // Guardamos una marca para que expire cada 24 horas y permita re-contar al día siguiente si vuelve
+            const marcaVisita = localStorage.getItem("friotecx_visited_date");
+
+            if (marcaVisita !== idDia) {
+                // Es un usuario nuevo hoy -> Se procesa el registro en el backend de Google
+                localStorage.setItem("friotecx_visited_date", idDia);
+
+                const batch = db.batch();
+                
+                const refGlobal = db.collection("metricas").doc("global");
+                const refDia = db.collection("metricas_diarias").doc(idDia);
+                const refSemana = db.collection("metricas_semanales").doc(idSemana);
+                const refMes = db.collection("metricas_mensuales").doc(idMes);
+                const refAno = db.collection("metricas_anuales").doc(idAno);
+
+                const inc = firebase.firestore.FieldValue.increment(1);
+
+                batch.set(refGlobal, { total: inc }, { merge: true });
+                batch.set(refDia, { total: inc }, { merge: true });
+                batch.set(refSemana, { total: inc }, { merge: true });
+                batch.set(refMes, { total: inc }, { merge: true });
+                batch.set(refAno, { total: inc }, { merge: true });
+
+                batch.commit().catch(err => console.log("Error de sincronización métrica."));
+            }
+        }
+
+        // 📊 CARGA DE DATOS ESTADÍSTICOS EN EL PANEL DE CONTROL PRIVADO
+        function cargarMetricasAdmin() {
+            const ahora = new Date();
+            const ano = ahora.getFullYear();
+            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+            const dia = String(ahora.getDate()).padStart(2, '0');
+            
+            const idDia = `${ano}-${mes}-${dia}`;
+            const idMes = `${ano}-${mes}`;
+            const idAno = `${ano}`;
+            
+            const inicioAno = new Date(ano, 0, 1);
+            const diasPasados = Math.floor((ahora - inicioAno) / (24 * 60 * 60 * 1000));
+            const idSemana = `${ano}-W${Math.ceil((diasPasados + inicioAno.getDay() + 1) / 7)}`;
+
+            // Consultas en tiempo real para el panel de administración
+            db.collection("metricas_diarias").doc(idDia).onSnapshot(doc => {
+                document.getElementById("stat-hoy").innerText = doc.exists ? doc.data().total : 0;
+            });
+            db.collection("metricas_semanales").doc(idSemana).onSnapshot(doc => {
+                document.getElementById("stat-semana").innerText = doc.exists ? doc.data().total : 0;
+            });
+            db.collection("metricas_mensuales").doc(idMes).onSnapshot(doc => {
+                document.getElementById("stat-mes").innerText = doc.exists ? doc.data().total : 0;
+            });
+            db.collection("metricas_anuales").doc(idAno).onSnapshot(doc => {
+                document.getElementById("stat-ano").innerText = doc.exists ? doc.data().total : 0;
             });
         }
 
@@ -648,9 +724,9 @@
             });
         }
         
-        // Inicializar Procesos Maestros
+        // Inicialización General
         sincronizarBaseDeDatos();
-        registrarYEscucharVisitas(); // <-- Activa el contador real
+        gestionarContadorVisitas(); // Inicia el control inteligente de visitas
         setTimeout(rotarTrabajos, 2000);
         setTimeout(rotarCapturas, 2500);
     </script>
