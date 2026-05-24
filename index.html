@@ -62,7 +62,6 @@
 
         .logo-central { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
 
-        /* 🔥 NUEVA ESTRUCTURA MAESTRA EN TRIPLE COLUMNA PARA PC */
         .main-dashboard {
             display: grid;
             grid-template-columns: 280px 1fr 1fr;
@@ -74,7 +73,6 @@
             border: 1px solid var(--border-metal); border-radius: 20px;
         }
 
-        /* COLUMNA 1: PANEL DE BOTONES E INFO */
         .info-panel-column {
             display: flex;
             flex-direction: column;
@@ -158,7 +156,6 @@
         }
         .visitas-display { color: #22c55e; text-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
 
-        /* COLUMNAS 2 Y 3: SECCIONES DINÁMICAS INTERNAS */
         .dashboard-section {
             display: flex; flex-direction: column;
             border: 1px solid rgba(255,255,255,0.05);
@@ -191,7 +188,6 @@
         .carousel-slide img, .review-slide img { width: 100%; height: 100%; object-fit: contain; }
         .review-slide img { padding: 5px; box-sizing: border-box; }
 
-        /* ELEMENTOS DE ADMINISTRACIÓN */
         .admin-trigger { 
             margin-top: 50px; font-size: 0.75rem; 
             color: rgba(255,255,255,0.15); cursor: pointer; 
@@ -227,7 +223,6 @@
 
         .show { display: block !important; }
 
-        /* 📱 RESPONSIVE DESIGN: MANTIENE LA VISTA VERTICAL EN TELÉFONOS */
         @media (max-width: 992px) { 
             .main-dashboard { grid-template-columns: 1fr; padding: 15px; } 
             .dashboard-section { margin-top: 15px; }
@@ -251,7 +246,6 @@
         </div>
 
         <div class="main-dashboard">
-            
             <div class="info-panel-column">
                 <div class="buttons-column">
                     <div class="dropdown">
@@ -329,7 +323,6 @@
                     <div class="review-slide active"><p style="color: #64748b; font-size:0.85rem; padding:20px; text-align:center;">Cargando opiniones...</p></div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -540,95 +533,55 @@
             }
         }
 
-        // 1. FUNCIÓN CORREGIDA PARA MOSTRAR Y SUMAR LAS VISITAS
-function gestionarContadorVisitas() {
-    const ahora = new Date();
-    const ano = ahora.getFullYear();
-    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-    const dia = String(ahora.getDate()).padStart(2, '0');
-    
-    const idDia = `${ano}-${mes}-${dia}`;
-    const idMes = `${ano}-${mes}`;
-    const idAno = `${ano}`;
+        function gestionarContadorVisitas() {
+            const ahora = new Date();
+            const ano = ahora.getFullYear();
+            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+            const dia = String(ahora.getDate()).padStart(2, '0');
+            
+            const idDia = `${ano}-${mes}-${dia}`;
+            const idMes = `${ano}-${mes}`;
+            const idAno = `${ano}`;
 
-    const inicioAno = new Date(ano, 0, 1);
-    const diasPasados = Math.floor((ahora - inicioAno) / (24 * 60 * 60 * 1000));
-    const idSemana = `${ano}-W${Math.ceil((diasPasados + inicioAno.getDay() + 1) / 7)}`;
+            const inicioAno = new Date(ano, 0, 1);
+            const diasPasados = Math.floor((ahora - inicioAno) / (24 * 60 * 60 * 1000));
+            const idSemana = `${ano}-W${Math.ceil((diasPasados + inicioAno.getDay() + 1) / 7)}`;
 
-    // ESCUCHA EN VIVO: Esto hace que el número pinte en pantalla apenas abre la página
-    db.collection("metricas").doc("global").onSnapshot(doc => {
-        if (doc.exists) {
-            const totalVisitas = doc.data().total || 0;
-            document.getElementById("visitas-display").innerText = totalVisitas;
-        } else {
-            document.getElementById("visitas-display").innerText = "0";
+            // Escuchar en vivo las visitas globales para mostrarlas en pantalla
+            db.collection("metricas").doc("global").onSnapshot(doc => {
+                if (doc.exists) {
+                    document.getElementById("visitas-display").innerText = doc.data().total || 0;
+                } else {
+                    document.getElementById("visitas-display").innerText = "0";
+                }
+            }, err => console.log("Error al leer visitas:", err));
+
+            // Filtro Anti-F5
+            const marcaVisita = localStorage.getItem("friotecx_visited_date");
+
+            if (marcaVisita !== idDia) {
+                localStorage.setItem("friotecx_visited_date", idDia);
+                const batch = db.batch();
+                
+                const refGlobal = db.collection("metricas").doc("global");
+                const refDia = db.collection("metricas_diarias").doc(idDia);
+                const refSemana = db.collection("metricas_semanales").doc(idSemana);
+                const refMes = db.collection("metricas_mensuales").doc(idMes);
+                const refAno = db.collection("metricas_anuales").doc(idAno);
+
+                const inc = firebase.firestore.FieldValue.increment(1);
+
+                batch.set(refGlobal, { total: inc }, { merge: true });
+                batch.set(refDia, { total: inc }, { merge: true });
+                batch.set(refSemana, { total: inc }, { merge: true });
+                batch.set(refMes, { total: inc }, { merge: true });
+                batch.set(refAno, { total: inc }, { merge: true });
+
+                batch.commit()
+                    .then(() => console.log("Visita del día sumada correctamente."))
+                    .catch(err => console.log("Error incrementando métricas: ", err));
+            }
         }
-    }, error => {
-        console.error("Error al escuchar visitas globales: ", error);
-    });
-
-    // FILTRO ANTI-F5: Comprueba si ya entraste hoy
-    const marcaVisita = localStorage.getItem("friotecx_visited_date");
-
-    if (marcaVisita !== idDia) {
-        localStorage.setItem("friotecx_visited_date", idDia);
-        const batch = db.batch();
-        
-        const refGlobal = db.collection("metricas").doc("global");
-        const refDia = db.collection("metricas_diarias").doc(idDia);
-        const refSemana = db.collection("metricas_semanales").doc(idSemana);
-        const refMes = db.collection("metricas_mensuales").doc(idMes);
-        const refAno = db.collection("metricas_anuales").doc(idAno);
-
-        const inc = firebase.firestore.FieldValue.increment(1);
-
-        batch.set(refGlobal, { total: inc }, { merge: true });
-        batch.set(refDia, { total: inc }, { merge: true });
-        batch.set(refSemana, { total: inc }, { merge: true });
-        batch.set(refMes, { total: inc }, { merge: true });
-        batch.set(refAno, { total: inc }, { merge: true });
-
-        batch.commit()
-            .then(() => console.log("Visita registrada con éxito."))
-            .catch(err => console.error("Error al registrar la visita en Firebase: ", err));
-    }
-}
-
-// 2. REVISAR LAS MÉTRICAS DEL PANEL DE ADMINISTRACIÓN
-function cargarMetricasAdmin() {
-    const ahora = new Date();
-    const ano = ahora.getFullYear();
-    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-    const dia = String(ahora.getDate()).padStart(2, '0');
-    
-    const idDia = `${ano}-${mes}-${dia}`;
-    const idMes = `${ano}-${mes}`;
-    const idAno = `${ano}`;
-    
-    const inicioAno = new Date(ano, 0, 1);
-    const diasPasados = Math.floor((ahora - inicioAno) / (24 * 60 * 60 * 1000));
-    const idSemana = `${ano}-W${Math.ceil((diasPasados + inicioAno.getDay() + 1) / 7)}`;
-
-    db.collection("metricas_diarias").doc(idDia).onSnapshot(doc => {
-        document.getElementById("stat-hoy").innerText = doc.exists ? (doc.data().total || 0) : 0;
-    });
-    db.collection("metricas_semanales").doc(idSemana).onSnapshot(doc => {
-        document.getElementById("stat-semana").innerText = doc.exists ? (doc.data().total || 0) : 0;
-    });
-    db.collection("metricas_mensuales").doc(idMes).onSnapshot(doc => {
-        document.getElementById("stat-mes").innerText = doc.exists ? (doc.data().total || 0) : 0;
-    });
-    db.collection("metricas_anuales").doc(idAno).onSnapshot(doc => {
-        document.getElementById("stat-ano").innerText = doc.exists ? (doc.data().total || 0) : 0;
-    });
-}
-
-// 3. ASEGÚRATE DE QUE SE LOGRE INICIALIZAR AL FINAL DEL CÓDIGO
-// Verifica que al final de todo tu script tengas llamadas estas funciones de esta manera:
-sincronizarBaseDeDatos();
-gestionarContadorVisitas(); // <-- Esta línea es vital que se ejecute al cargar
-setTimeout(rotarTrabajos, 2000);
-setTimeout(rotarCapturas, 2500);
 
         function cargarMetricasAdmin() {
             const ahora = new Date();
@@ -645,16 +598,16 @@ setTimeout(rotarCapturas, 2500);
             const idSemana = `${ano}-W${Math.ceil((diasPasados + inicioAno.getDay() + 1) / 7)}`;
 
             db.collection("metricas_diarias").doc(idDia).onSnapshot(doc => {
-                document.getElementById("stat-hoy").innerText = doc.exists ? doc.data().total : 0;
+                document.getElementById("stat-hoy").innerText = doc.exists ? (doc.data().total || 0) : 0;
             });
             db.collection("metricas_semanales").doc(idSemana).onSnapshot(doc => {
-                document.getElementById("stat-semana").innerText = doc.exists ? doc.data().total : 0;
+                document.getElementById("stat-semana").innerText = doc.exists ? (doc.data().total || 0) : 0;
             });
             db.collection("metricas_mensuales").doc(idMes).onSnapshot(doc => {
-                document.getElementById("stat-mes").innerText = doc.exists ? doc.data().total : 0;
+                document.getElementById("stat-mes").innerText = doc.exists ? (doc.data().total || 0) : 0;
             });
             db.collection("metricas_anuales").doc(idAno).onSnapshot(doc => {
-                document.getElementById("stat-ano").innerText = doc.exists ? doc.data().total : 0;
+                document.getElementById("stat-ano").innerText = doc.exists ? (doc.data().total || 0) : 0;
             });
         }
 
