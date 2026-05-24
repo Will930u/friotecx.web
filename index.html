@@ -540,49 +540,95 @@
             }
         }
 
-        function gestionarContadorVisitas() {
-            const ahora = new Date();
-            const ano = ahora.getFullYear();
-            const mes = String(ahora.getMonth() + 1).padStart(2, '0');
-            const dia = String(ahora.getDate()).padStart(2, '0');
-            
-            const idDia = `${ano}-${mes}-${dia}`;
-            const idMes = `${ano}-${mes}`;
-            const idAno = `${ano}`;
+        // 1. FUNCIÓN CORREGIDA PARA MOSTRAR Y SUMAR LAS VISITAS
+function gestionarContadorVisitas() {
+    const ahora = new Date();
+    const ano = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    
+    const idDia = `${ano}-${mes}-${dia}`;
+    const idMes = `${ano}-${mes}`;
+    const idAno = `${ano}`;
 
-            const inicioAno = new Date(ano, 0, 1);
-            const diasPasados = Math.floor((ahora - inicioAno) / (24 * 60 * 60 * 1000));
-            const idSemana = `${ano}-W${Math.ceil((diasPasados + inicioAno.getDay() + 1) / 7)}`;
+    const inicioAno = new Date(ano, 0, 1);
+    const diasPasados = Math.floor((ahora - inicioAno) / (24 * 60 * 60 * 1000));
+    const idSemana = `${ano}-W${Math.ceil((diasPasados + inicioAno.getDay() + 1) / 7)}`;
 
-            db.collection("metricas").doc("global").onSnapshot(doc => {
-                if (doc.exists) {
-                    document.getElementById("visitas-display").innerText = doc.data().total || 0;
-                }
-            });
-
-            const marcaVisita = localStorage.getItem("friotecx_visited_date");
-
-            if (marcaVisita !== idDia) {
-                localStorage.setItem("friotecx_visited_date", idDia);
-                const batch = db.batch();
-                
-                const refGlobal = db.collection("metricas").doc("global");
-                const refDia = db.collection("metricas_diarias").doc(idDia);
-                const refSemana = db.collection("metricas_semanales").doc(idSemana);
-                const refMes = db.collection("metricas_mensuales").doc(idMes);
-                const refAno = db.collection("metricas_anuales").doc(idAno);
-
-                const inc = firebase.firestore.FieldValue.increment(1);
-
-                batch.set(refGlobal, { total: inc }, { merge: true });
-                batch.set(refDia, { total: inc }, { merge: true });
-                batch.set(refSemana, { total: inc }, { merge: true });
-                batch.set(refMes, { total: inc }, { merge: true });
-                batch.set(refAno, { total: inc }, { merge: true });
-
-                batch.commit().catch(err => console.log("Error métricas."));
-            }
+    // ESCUCHA EN VIVO: Esto hace que el número pinte en pantalla apenas abre la página
+    db.collection("metricas").doc("global").onSnapshot(doc => {
+        if (doc.exists) {
+            const totalVisitas = doc.data().total || 0;
+            document.getElementById("visitas-display").innerText = totalVisitas;
+        } else {
+            document.getElementById("visitas-display").innerText = "0";
         }
+    }, error => {
+        console.error("Error al escuchar visitas globales: ", error);
+    });
+
+    // FILTRO ANTI-F5: Comprueba si ya entraste hoy
+    const marcaVisita = localStorage.getItem("friotecx_visited_date");
+
+    if (marcaVisita !== idDia) {
+        localStorage.setItem("friotecx_visited_date", idDia);
+        const batch = db.batch();
+        
+        const refGlobal = db.collection("metricas").doc("global");
+        const refDia = db.collection("metricas_diarias").doc(idDia);
+        const refSemana = db.collection("metricas_semanales").doc(idSemana);
+        const refMes = db.collection("metricas_mensuales").doc(idMes);
+        const refAno = db.collection("metricas_anuales").doc(idAno);
+
+        const inc = firebase.firestore.FieldValue.increment(1);
+
+        batch.set(refGlobal, { total: inc }, { merge: true });
+        batch.set(refDia, { total: inc }, { merge: true });
+        batch.set(refSemana, { total: inc }, { merge: true });
+        batch.set(refMes, { total: inc }, { merge: true });
+        batch.set(refAno, { total: inc }, { merge: true });
+
+        batch.commit()
+            .then(() => console.log("Visita registrada con éxito."))
+            .catch(err => console.error("Error al registrar la visita en Firebase: ", err));
+    }
+}
+
+// 2. REVISAR LAS MÉTRICAS DEL PANEL DE ADMINISTRACIÓN
+function cargarMetricasAdmin() {
+    const ahora = new Date();
+    const ano = ahora.getFullYear();
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    
+    const idDia = `${ano}-${mes}-${dia}`;
+    const idMes = `${ano}-${mes}`;
+    const idAno = `${ano}`;
+    
+    const inicioAno = new Date(ano, 0, 1);
+    const diasPasados = Math.floor((ahora - inicioAno) / (24 * 60 * 60 * 1000));
+    const idSemana = `${ano}-W${Math.ceil((diasPasados + inicioAno.getDay() + 1) / 7)}`;
+
+    db.collection("metricas_diarias").doc(idDia).onSnapshot(doc => {
+        document.getElementById("stat-hoy").innerText = doc.exists ? (doc.data().total || 0) : 0;
+    });
+    db.collection("metricas_semanales").doc(idSemana).onSnapshot(doc => {
+        document.getElementById("stat-semana").innerText = doc.exists ? (doc.data().total || 0) : 0;
+    });
+    db.collection("metricas_mensuales").doc(idMes).onSnapshot(doc => {
+        document.getElementById("stat-mes").innerText = doc.exists ? (doc.data().total || 0) : 0;
+    });
+    db.collection("metricas_anuales").doc(idAno).onSnapshot(doc => {
+        document.getElementById("stat-ano").innerText = doc.exists ? (doc.data().total || 0) : 0;
+    });
+}
+
+// 3. ASEGÚRATE DE QUE SE LOGRE INICIALIZAR AL FINAL DEL CÓDIGO
+// Verifica que al final de todo tu script tengas llamadas estas funciones de esta manera:
+sincronizarBaseDeDatos();
+gestionarContadorVisitas(); // <-- Esta línea es vital que se ejecute al cargar
+setTimeout(rotarTrabajos, 2000);
+setTimeout(rotarCapturas, 2500);
 
         function cargarMetricasAdmin() {
             const ahora = new Date();
