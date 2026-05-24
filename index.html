@@ -459,37 +459,50 @@
             }
         }
 
-        // SUBIDA AUTOMÁTICA DEL ARCHIVO AUDIO MP3 A FIREBASE STORAGE
-        async function subirMusicaDesdeMovil() {
-            const audioInput = document.getElementById('upload-audio-input');
-            const boton = document.getElementById('btn-publicar-audio');
-            if (audioInput.files.length === 0) return alert("Por favor, selecciona un archivo mp3 primero.");
+        // REEMPLAZA ÚNICAMENTE ESTA FUNCIÓN EN TU CÓDIGO ANTERIOR
 
-            const file = audioInput.files[0];
-            boton.disabled = true;
-            boton.innerText = "Subiendo pista a Firebase...";
+async function subirMusicaDesdeMovil() {
+    const audioInput = document.getElementById('upload-audio-input');
+    const boton = document.getElementById('btn-publicar-audio');
+    if (audioInput.files.length === 0) return alert("Por favor, selecciona un archivo mp3 primero.");
 
-            try {
-                // Sube el archivo directo al contenedor Storage
-                const storageRef = storage.ref(`musica/fondo.mp3`);
-                await storageRef.put(file);
-                const urlDescarga = await storageRef.getDownloadURL();
+    const file = audioInput.files[0];
+    boton.disabled = true;
+    boton.innerText = "Subiendo pista de forma gratuita...";
 
-                // Registra la URL en Firestore
-                await db.collection("configuracion").doc("musica").set({
-                    url: urlDescarga,
-                    nombre: file.name,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
+    // Usamos un servicio de hosting temporal gratuito y anónimo que genera un enlace directo .mp3
+    const formData = new FormData();
+    formData.append("file", file);
 
-                alert("¡Música ambiental cargada e implementada en vivo!");
-                audioInput.value = '';
-            } catch (err) {
-                alert("Error al subir archivo: " + err.message);
-            }
-            boton.innerText = "Subir y Cambiar Música Actual";
-            boton.disabled = false;
+    try {
+        // Enviamos el audio a un servidor de archivos temporal libre (File.io)
+        const respuesta = await fetch('https://file.io/?expires=1y', { // Expira en 1 año si no se usa, ideal para uso continuo
+            method: 'POST',
+            body: formData
+        });
+        const resultadoJson = await respuesta.json();
+
+        if (resultadoJson.success) {
+            const urlDescarga = resultadoJson.link;
+
+            // Guardamos el enlace de texto en Firestore (que es 100% gratis)
+            await db.collection("configuracion").doc("musica").set({
+                url: urlDescarga,
+                nombre: file.name,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            alert("¡Música ambiental cargada con éxito a través de servidor gratuito!");
+            audioInput.value = '';
+        } else {
+            alert("El servidor gratuito rechazó el archivo. Intenta con un archivo más pequeño.");
         }
+    } catch (err) {
+        alert("Error en la subida gratuita: " + err.message);
+    }
+    boton.innerText = "Subir y Cambiar Música Actual";
+    boton.disabled = false;
+}
 
         function rotarTrabajos() {
             const list = document.querySelectorAll('#contenedor-trabajos .carousel-slide');
