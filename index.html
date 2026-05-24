@@ -62,7 +62,6 @@
 
         .logo-central { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
 
-        /* 🔥 NUEVA ESTRUCTURA MAESTRA EN TRIPLE COLUMNA PARA PC */
         .main-dashboard {
             display: grid;
             grid-template-columns: 280px 1fr 1fr;
@@ -74,7 +73,6 @@
             border: 1px solid var(--border-metal); border-radius: 20px;
         }
 
-        /* COLUMNA 1: PANEL DE BOTONES E INFO */
         .info-panel-column {
             display: flex;
             flex-direction: column;
@@ -158,7 +156,6 @@
         }
         .visitas-display { color: #22c55e; text-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
 
-        /* COLUMNAS 2 Y 3: SECCIONES DINÁMICAS INTERNAS */
         .dashboard-section {
             display: flex; flex-direction: column;
             border: 1px solid rgba(255,255,255,0.05);
@@ -191,7 +188,18 @@
         .carousel-slide img, .review-slide img { width: 100%; height: 100%; object-fit: contain; }
         .review-slide img { padding: 5px; box-sizing: border-box; }
 
-        /* ELEMENTOS DE ADMINISTRACIÓN */
+        /* 🎧 BOTÓN FLOTANTE PARA PASAR O SILENCIAR MÚSICA EN LA WEB */
+        .audio-player-widget {
+            position: fixed; bottom: 20px; right: 20px; z-index: 9999;
+            background: rgba(15, 23, 42, 0.9); border: 2px solid var(--neon-blue);
+            padding: 10px; border-radius: 50%; width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 0 15px var(--neon-blue);
+            transition: 0.3s;
+        }
+        .audio-player-widget:hover { transform: scale(1.1); }
+        .audio-player-widget svg { fill: #fff; width: 22px; height: 22px; }
+
         .admin-trigger { 
             margin-top: 50px; font-size: 0.75rem; 
             color: rgba(255,255,255,0.15); cursor: pointer; 
@@ -227,7 +235,6 @@
 
         .show { display: block !important; }
 
-        /* 📱 RESPONSIVE DESIGN: MANTIENE LA VISTA VERTICAL EN TELÉFONOS */
         @media (max-width: 992px) { 
             .main-dashboard { grid-template-columns: 1fr; padding: 15px; } 
             .dashboard-section { margin-top: 15px; }
@@ -240,10 +247,17 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 </head>
-<body>
+<body onclick="iniciarMusicaPorInteraccion()">
 
     <div id="fx-container"></div>
+
+    <audio id="global-audio-player" loop></audio>
+    
+    <div class="audio-player-widget" id="btn-audio-mute" onclick="controlarMuteManual(event)">
+        <svg id="svg-music-on" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+    </div>
 
     <div class="main-frame">
         <div class="top-banner">
@@ -251,7 +265,6 @@
         </div>
 
         <div class="main-dashboard">
-            
             <div class="info-panel-column">
                 <div class="buttons-column">
                     <div class="dropdown">
@@ -329,7 +342,6 @@
                     <div class="review-slide active"><p style="color: #64748b; font-size:0.85rem; padding:20px; text-align:center;">Cargando opiniones...</p></div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -353,6 +365,16 @@
                 <div class="stat-card"><span>Esta Semana</span><strong id="stat-semana">0</strong></div>
                 <div class="stat-card"><span>Este Mes</span><strong id="stat-mes">0</strong></div>
                 <div class="stat-card"><span>Este Año</span><strong id="stat-ano">0</strong></div>
+            </div>
+
+            <h4 style="color: #a855f7; border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">🎵 Gestión de Música de Fondo</h4>
+            <p style="font-size:0.75rem; color:#94a3b8; margin:0 0 5px 0;">Selecciona una canción (.mp3) desde tu teléfono para ambientalizar la web:</p>
+            <input type="file" id="upload-audio-input" accept="audio/mp3,audio/*">
+            <button type="button" id="btn-publicar-audio" style="background: #a855f7; color: white;" onclick="subirMusicaDesdeMovil()">Subir y Cambiar Música Actual</button>
+            
+            <p style="font-size:0.75rem; color:#f87171; margin:10px 0 2px 0; font-weight: bold;">🗑️ Estado del Audio:</p>
+            <div class="manager-container" id="lista-borrar-musica">
+                <p style="color:#64748b; font-size:0.75rem; text-align:center;">Cargando configuración...</p>
             </div>
 
             <h4 style="color: var(--neon-blue); border-top: 1px dashed #334155; padding-top:12px; margin-bottom:5px;">Cargar Nuevas Fotografías</h4>
@@ -402,11 +424,72 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
+        const storage = firebase.storage();
 
         const IMGBB_API_KEY = "0a5e7954b4b9fed188e15e4e5532e57b";
 
         let indexTrabajos = 0;
         let indexCapturas = 0;
+        let musicaIniciada = false;
+        let urlAudioActual = "";
+
+        // CONTROL DE REPRODUCCIÓN INTELIGENTE
+        function iniciarMusicaPorInteraccion() {
+            if (!musicaIniciada && urlAudioActual !== "") {
+                const player = document.getElementById("global-audio-player");
+                player.play().then(() => {
+                    musicaIniciada = true;
+                }).catch(err => console.log("Esperando clic interactivo."));
+            }
+        }
+
+        function controlarMuteManual(event) {
+            event.stopPropagation();
+            const player = document.getElementById("global-audio-player");
+            const widget = document.getElementById("btn-audio-mute");
+            
+            if (player.paused) {
+                player.play();
+                widget.style.boxShadow = "0 0 15px var(--neon-blue)";
+                widget.style.borderColor = "var(--neon-blue)";
+            } else {
+                player.pause();
+                widget.style.boxShadow = "none";
+                widget.style.borderColor = "#334155";
+            }
+        }
+
+        // SUBIDA AUTOMÁTICA DEL ARCHIVO AUDIO MP3 A FIREBASE STORAGE
+        async function subirMusicaDesdeMovil() {
+            const audioInput = document.getElementById('upload-audio-input');
+            const boton = document.getElementById('btn-publicar-audio');
+            if (audioInput.files.length === 0) return alert("Por favor, selecciona un archivo mp3 primero.");
+
+            const file = audioInput.files[0];
+            boton.disabled = true;
+            boton.innerText = "Subiendo pista a Firebase...";
+
+            try {
+                // Sube el archivo directo al contenedor Storage
+                const storageRef = storage.ref(`musica/fondo.mp3`);
+                await storageRef.put(file);
+                const urlDescarga = await storageRef.getDownloadURL();
+
+                // Registra la URL en Firestore
+                await db.collection("configuracion").doc("musica").set({
+                    url: urlDescarga,
+                    nombre: file.name,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert("¡Música ambiental cargada e implementada en vivo!");
+                audioInput.value = '';
+            } catch (err) {
+                alert("Error al subir archivo: " + err.message);
+            }
+            boton.innerText = "Subir y Cambiar Música Actual";
+            boton.disabled = false;
+        }
 
         function rotarTrabajos() {
             const list = document.querySelectorAll('#contenedor-trabajos .carousel-slide');
@@ -433,6 +516,7 @@
             document.querySelectorAll('.dropbtn').forEach(b => { if(b !== btn) b.classList.remove('active'); });
             document.getElementById(menuId).classList.toggle('show');
             btn.classList.toggle('active');
+            iniciarMusicaPorInteraccion();
         }
 
         window.onclick = function(e) {
@@ -540,6 +624,19 @@
             }
         }
 
+        function borrarMusicaGlobal(idDoc) {
+            if(confirm("¿Quieres eliminar por completo la pista actual de la base de datos? La web quedará en silencio.")) {
+                db.collection("configuracion").doc(idDoc).delete().then(() => {
+                    const player = document.getElementById("global-audio-player");
+                    player.pause();
+                    player.src = "";
+                    urlAudioActual = "";
+                    musicaIniciada = false;
+                    alert("Canción eliminada.");
+                });
+            }
+        }
+
         function gestionarContadorVisitas() {
             const ahora = new Date();
             const ano = ahora.getFullYear();
@@ -613,6 +710,30 @@
         }
 
         function sincronizarBaseDeDatos() {
+            // Sincronización en vivo del reproductor de música
+            db.collection("configuracion").doc("musica").onSnapshot(doc => {
+                const listaAudio = document.getElementById('lista-borrar-musica');
+                const widget = document.getElementById('btn-audio-mute');
+                
+                if (doc.exists) {
+                    const data = doc.data();
+                    urlAudioActual = data.url;
+                    document.getElementById("global-audio-player").src = urlAudioActual;
+                    widget.style.display = "flex";
+                    
+                    listaAudio.innerHTML = `
+                        <div class="manager-item">
+                            <span style="font-size:0.75rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:260px;">🎵 Pista: ${data.nombre || "Fondo Activo"}</span>
+                            <button class="btn-delete-small" onclick="borrarMusicaGlobal('musica')">Quitar Música</button>
+                        </div>`;
+                } else {
+                    urlAudioActual = "";
+                    document.getElementById("global-audio-player").src = "";
+                    widget.style.display = "none";
+                    listaAudio.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">Ninguna pista en reproducción (Silencio).</p>';
+                }
+            });
+
             db.collection("trabajos").orderBy("timestamp", "desc").onSnapshot(snap => {
                 const contenedor = document.getElementById('contenedor-trabajos');
                 const listaBorrar = document.getElementById('lista-borrar-trabajos');
