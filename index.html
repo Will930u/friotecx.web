@@ -43,16 +43,17 @@
         @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
 
         .main-frame {
-            width: 95%; max-width: 1100px;
+            width: 95%; max-width: 1200px;
             background: var(--panel-gradient);
             border: 4px solid var(--border-metal);
             border-radius: 15px; padding: 15px;
             box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 10px 40px rgba(0,0,0,0.6);
             position: relative; z-index: 10;
+            box-sizing: border-box;
         }
 
         .top-banner {
-            width: 100%; height: 300px;
+            width: 100%; height: 220px;
             border: 2px solid var(--neon-blue);
             border-radius: 10px; position: relative; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
@@ -61,24 +62,35 @@
 
         .logo-central { position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
 
-        .dashboard-content {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+        /* 🔥 NUEVA ESTRUCTURA MAESTRA EN TRIPLE COLUMNA PARA PC */
+        .main-dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr 1fr;
+            gap: 20px;
             background: var(--glass);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            padding: 25px; 
+            padding: 20px; 
             border: 1px solid var(--border-metal); border-radius: 20px;
         }
 
-        .buttons-column { display: flex; flex-direction: column; gap: 12px; position: relative; align-items: center; width: 100%; }
+        /* COLUMNA 1: PANEL DE BOTONES E INFO */
+        .info-panel-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .buttons-column { display: flex; flex-direction: column; gap: 10px; position: relative; align-items: center; width: 100%; }
         
         .dropdown { position: relative; width: 100%; display: flex; justify-content: center; }
 
         .dropbtn {
             font-family: 'Rajdhani', sans-serif;
             background: linear-gradient(180deg, #1e293b, #0f172a);
-            border: 1px solid #334155; padding: 12px 15px; font-size: 0.95rem; 
-            width: 90%; color: #fff; font-weight: bold; cursor: pointer;
+            border: 1px solid #334155; padding: 11px 15px; font-size: 0.85rem; 
+            width: 100%; color: #fff; font-weight: bold; cursor: pointer;
             border-radius: 8px; text-align: center;
             text-transform: uppercase; letter-spacing: 2px;
             transition: all 0.3s ease; outline: none;
@@ -92,7 +104,7 @@
 
         .dropdown-content {
             display: none; position: absolute; background-color: #0b1a2a;
-            min-width: 280px; z-index: 2000;
+            min-width: 260px; z-index: 2000;
             border: 2px solid var(--neon-blue); 
             border-radius: 8px; padding: 10px; 
             left: 50%; transform: translateX(-50%);
@@ -102,15 +114,10 @@
         }
 
         .service-link {
-            display: block;
-            color: #ccc;
-            text-decoration: none;
-            padding: 8px 10px;
-            font-size: 0.85rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: 0.2s;
+            display: block; color: #ccc; text-decoration: none;
+            padding: 8px 10px; font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s;
         }
-
         .service-link:hover { background: rgba(0, 212, 255, 0.1); color: var(--neon-blue); padding-left: 15px; }
 
         .social-item {
@@ -118,32 +125,19 @@
             padding: 10px; text-decoration: none; color: white;
             font-size: 0.9rem; font-weight: 600; transition: 0.3s;
         }
-
-        .social-item img { 
-            width: 22px !important; 
-            height: 22px !important; 
-            object-fit: contain;
-            flex-shrink: 0;
-        }
-        
+        .social-item img { width: 22px !important; height: 22px !important; object-fit: contain; flex-shrink: 0; }
         .social-item:hover { background: rgba(255,255,255,0.1); border-radius: 8px; }
 
-        .info-column { 
-            display: flex; flex-direction: column; justify-content: center; 
-            align-items: center; text-align: center; border-left: 1px solid rgba(255,255,255,0.1); 
-        }
+        .contact-title { font-family: 'Rajdhani', sans-serif; letter-spacing: 1.5px; color: var(--neon-blue); margin: 10px 0 5px 0; font-size: 0.85rem; font-weight: bold; }
 
-        h4 { font-family: 'Rajdhani', sans-serif; letter-spacing: 1.5px; color: var(--neon-blue); margin-bottom: 20px; font-size: 1rem; }
-
-        .contact-links-container { display: flex; flex-direction: column; gap: 12px; width: 100%; align-items: center; }
+        .contact-links-container { display: flex; flex-direction: column; gap: 10px; width: 100%; align-items: center; }
 
         .contact-link {
-            text-decoration: none; font-weight: 600; font-size: 0.95rem;
+            text-decoration: none; font-weight: 600; font-size: 0.85rem;
             transition: 0.3s; display: inline-flex; align-items: center;
-            gap: 12px; padding: 10px 20px; border-radius: 8px; width: 180px;
+            justify-content: center; gap: 10px; padding: 10px; border-radius: 8px; width: 85%;
         }
-
-        .contact-link img { width: 24px; height: 24px; }
+        .contact-link img { width: 20px; height: 20px; }
 
         .whatsapp-link { color: #25d366; border: 1px solid rgba(37, 211, 102, 0.3); }
         .whatsapp-link:hover { background: rgba(37, 211, 102, 0.1); box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
@@ -152,38 +146,40 @@
         .telegram-link:hover { background: rgba(0, 212, 255, 0.1); box-shadow: 0 0 15px rgba(0, 212, 255, 0.4); }
 
         .tasa-box, .visitas-box { 
-            margin-top: 20px; padding: 12px; 
-            background: rgba(255,255,255,0.03); 
-            border: 1px dashed var(--neon-blue); 
-            border-radius: 10px; width: 80%; 
+            padding: 10px; background: rgba(255,255,255,0.03); 
+            border: 1px dashed var(--neon-blue); border-radius: 10px; width: 90%; text-align: center;
+            box-sizing: border-box;
         }
-
-        .visitas-box { border: 1px dashed #22c55e; margin-top: 15px; }
+        .visitas-box { border: 1px dashed #22c55e; }
 
         .tasa-display, .visitas-display { 
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1.8rem; font-weight: bold; 
-            color: #fff; display: block; margin-top: 5px; 
+            font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: bold; 
+            color: #fff; display: block; margin-top: 3px; 
         }
-        
         .visitas-display { color: #22c55e; text-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
 
-        .section-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; color: var(--neon-blue); letter-spacing: 2px; margin-top: 40px; text-transform: uppercase; text-align: center; }
-
-        .carousel-container { 
-            width: 95%; max-width: 1100px; 
-            background: #000; border: 4px solid var(--border-metal); 
-            border-radius: 15px; margin-top: 15px; height: 450px; 
-            position: relative; z-index: 1; overflow: hidden;
+        /* COLUMNAS 2 Y 3: SECCIONES DINÁMICAS INTERNAS */
+        .dashboard-section {
+            display: flex; flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px; padding: 12px; box-sizing: border-box;
         }
 
-        .reviews-container { 
-            width: 95%; max-width: 420px; 
-            background: #0b111e; border: 3px solid var(--neon-blue); 
-            border-radius: 15px; margin-top: 15px; height: 560px; 
-            position: relative; z-index: 1; overflow: hidden;
-            box-shadow: 0 0 25px rgba(0, 212, 255, 0.15);
+        .section-internal-title { 
+            font-family: 'Rajdhani', sans-serif; font-size: 1rem; 
+            color: var(--neon-blue); letter-spacing: 1.5px; 
+            margin-bottom: 12px; text-transform: uppercase; text-align: center;
+            font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
+
+        .carousel-container, .reviews-container { 
+            width: 100%; height: 380px; background: #000; 
+            border: 2px solid var(--border-metal); border-radius: 10px; 
+            position: relative; overflow: hidden; margin: auto 0;
+        }
+
+        .reviews-container { border: 2px solid var(--neon-blue); box-shadow: 0 0 15px rgba(0, 212, 255, 0.1); }
 
         .carousel-slide, .review-slide {
             position: absolute; width: 100%; height: 100%;
@@ -193,10 +189,11 @@
 
         .carousel-slide.active, .review-slide.active { opacity: 1; }
         .carousel-slide img, .review-slide img { width: 100%; height: 100%; object-fit: contain; }
-        .review-slide img { padding: 10px; box-sizing: border-box; }
+        .review-slide img { padding: 5px; box-sizing: border-box; }
 
+        /* ELEMENTOS DE ADMINISTRACIÓN */
         .admin-trigger { 
-            margin-top: 70px; font-size: 0.75rem; 
+            margin-top: 50px; font-size: 0.75rem; 
             color: rgba(255,255,255,0.15); cursor: pointer; 
             text-decoration: underline; padding-bottom: 20px;
             position: relative; z-index: 5000; display: inline-block; 
@@ -212,48 +209,31 @@
 
         .admin-panel h3 { color: #ef4444; margin-top: 0; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
         
-        /* CUADRÍCULA DE MÉTRICAS ANALÍTICAS EN PANEL ADMIN */
-        .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0;
-        }
-        .stat-card {
-            background: #020617; border: 1px solid #334155; border-radius: 8px; padding: 10px; text-align: center;
-        }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .stat-card { background: #020617; border: 1px solid #334155; border-radius: 8px; padding: 10px; text-align: center; }
         .stat-card span { display: block; font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; }
         .stat-card strong { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; color: var(--neon-blue); }
 
         .admin-panel input, .admin-panel select, .admin-panel button { width: 100%; padding: 11px; margin: 8px 0; border-radius: 6px; border: 1px solid #334155; background: #020617; color: white; box-sizing: border-box; font-size: 0.9rem; }
         .admin-panel button { background: #ef4444; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
         .admin-panel button:hover { background: #dc2626; }
-        
         .admin-panel input[type="file"] { background: #1e293b; border: 1px dashed var(--neon-blue); cursor: pointer; padding: 15px; }
 
-        .manager-container {
-            margin-top: 15px; max-height: 140px; overflow-y: auto;
-            background: #020617; border: 1px solid #334155;
-            border-radius: 6px; padding: 8px;
-        }
-
-        .manager-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.05);
-            font-size: 0.8rem; color: #cbd5e1;
-        }
-
+        .manager-container { margin-top: 15px; max-height: 140px; overflow-y: auto; background: #020617; border: 1px solid #334155; border-radius: 6px; padding: 8px; }
+        .manager-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.8rem; color: #cbd5e1; }
         .manager-item img { width: 45px; height: 35px; object-fit: cover; border-radius: 4px; }
-        
-        .btn-delete-small {
-            background: #dc2626 !important; width: auto !important;
-            padding: 4px 8px !important; margin: 0 !important;
-            font-size: 0.75rem !important; border-radius: 4px !important;
-        }
+        .btn-delete-small { background: #dc2626 !important; width: auto !important; padding: 4px 8px !important; margin: 0 !important; font-size: 0.75rem !important; border-radius: 4px !important; }
         .btn-delete-small:hover { background: #b91c1c !important; }
 
         .show { display: block !important; }
 
-        @media (max-width: 768px) { 
-            .dashboard-content { grid-template-columns: 1fr; } 
-            .info-column { border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; } 
+        /* 📱 RESPONSIVE DESIGN: MANTIENE LA VISTA VERTICAL EN TELÉFONOS */
+        @media (max-width: 992px) { 
+            .main-dashboard { grid-template-columns: 1fr; padding: 15px; } 
+            .dashboard-section { margin-top: 15px; }
+            .carousel-container, .reviews-container { height: 420px; }
+            .contact-link { width: 180px; }
+            .tasa-box, .visitas-box { width: 80%; }
         }
     </style>
 
@@ -270,53 +250,52 @@
             <img src="tu-logo-friotecx.png" alt="FRIOTECX" class="logo-central">
         </div>
 
-        <div class="dashboard-content">
-            <div class="buttons-column">
-                <div class="dropdown">
-                    <button class="dropbtn" onclick="toggleMenu('menu-servicios', this)">☰ SERVICIOS</button>
-                    <div id="menu-servicios" class="dropdown-content">
-                        <a href="https://wa.me/584243497259?text=Buen%20día,%20¿en%20cuánto%20sale%20el%20mantenimiento%20preventivo?" target="_blank" class="service-link">• Mantenimiento preventivo</a>
-                        <a href="https://wa.me/584243497259?text=Buen%20día,%20necesito%20información%20sobre%20la%20recarga%20de%20gas" target="_blank" class="service-link">• Recarga de gas</a>
-                        <a href="https://wa.me/584243497259?text=Buen%20día,%20mi%20equipo%20tiene%20una%20fuga" target="_blank" class="service-link">• Detección de fugas</a>
-                        <a href="https://wa.me/584243497259?text=Buen%20día,%20presupuesto%20para%20cambio%20de%20compresor" target="_blank" class="service-link">• Cambio de compresores</a>
-                        <a href="https://wa.me/584243497259?text=Buen%20día,%20falla%20en%20tarjeta%20electrónica" target="_blank" class="service-link">• Reparación de tarjetas</a>
-                        <a href="https://wa.me/584243497259?text=Buen%20día,%20revisión%20de%20lavadora/secadora" target="_blank" class="service-link">• Lavadoras y Secadoras</a>
+        <div class="main-dashboard">
+            
+            <div class="info-panel-column">
+                <div class="buttons-column">
+                    <div class="dropdown">
+                        <button class="dropbtn" onclick="toggleMenu('menu-servicios', this)">☰ SERVICIOS</button>
+                        <div id="menu-servicios" class="dropdown-content">
+                            <a href="https://wa.me/584243497259?text=Buen%20día,%20¿en%20cuánto%20sale%20el%20mantenimiento%20preventivo?" target="_blank" class="service-link">• Mantenimiento preventivo</a>
+                            <a href="https://wa.me/584243497259?text=Buen%20día,%20necesito%20información%20sobre%20la%20recarga%20de%20gas" target="_blank" class="service-link">• Recarga de gas</a>
+                            <a href="https://wa.me/584243497259?text=Buen%20día,%20mi%20equipo%20tiene%20una%20fuga" target="_blank" class="service-link">• Detección de fugas</a>
+                            <a href="https://wa.me/584243497259?text=Buen%20día,%20presupuesto%20para%20cambio%20de%20compresor" target="_blank" class="service-link">• Cambio de compresores</a>
+                            <a href="https://wa.me/584243497259?text=Buen%20día,%20falla%20en%20tarjeta%20electrónica" target="_blank" class="service-link">• Reparación de tarjetas</a>
+                            <a href="https://wa.me/584243497259?text=Buen%20día,%20revisión%20de%20lavadora/secadora" target="_blank" class="service-link">• Lavadoras y Secadoras</a>
+                        </div>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="dropbtn" onclick="toggleMenu('menu-instala', this)">🛠 INSTALACIÓN</button>
+                        <div id="menu-instala" class="dropdown-content">
+                            <a href="https://wa.me/584243497259?text=Hola,%20quisiera%20instalar%20un%20Split" target="_blank" class="service-link">• Aires tipo Split</a>
+                            <a href="https://wa.me/584243497259?text=Hola,%20quisiera%20instalar%20un%20aire%20de%20ventana" target="_blank" class="service-link">• Aires de Ventana</a>
+                            <a href="https://wa.me/584243497259?text=Hola,%20instalación%20equipo%20central" target="_blank" class="service-link">• Unidades Centrales</a>
+                        </div>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="dropbtn" onclick="toggleMenu('menu-ubica', this)">📍 UBICACIÓN</button>
+                        <div id="menu-ubica" class="dropdown-content">
+                            <p style="padding: 10px; margin:0; font-size: 0.85rem;">Maracay, Edo. Aragua.<br>Servicio a domicilio.</p>
+                        </div>
+                    </div>
+
+                    <div class="dropdown">
+                        <button class="dropbtn" onclick="toggleMenu('menu-redes', this)">🌐 REDES SOCIALES</button>
+                        <div id="menu-redes" class="dropdown-content">
+                            <a href="https://www.facebook.com/profile.php?id=61590025905540" target="_blank" class="social-item">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="FB"> Facebook
+                            </a>
+                            <a href="https://www.instagram.com/friotecx" target="_blank" class="social-item">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="IG"> Instagram
+                            </a>
+                        </div>
                     </div>
                 </div>
 
-                <div class="dropdown">
-                    <button class="dropbtn" onclick="toggleMenu('menu-instala', this)">🛠 INSTALACIÓN</button>
-                    <div id="menu-instala" class="dropdown-content">
-                        <a href="https://wa.me/584243497259?text=Hola,%20quisiera%20instalar%20un%20Split" target="_blank" class="service-link">• Aires tipo Split</a>
-                        <a href="https://wa.me/584243497259?text=Hola,%20quisiera%20instalar%20un%20aire%20de%20ventana" target="_blank" class="service-link">• Aires de Ventana</a>
-                        <a href="https://wa.me/584243497259?text=Hola,%20instalación%20equipo%20central" target="_blank" class="service-link">• Unidades Centrales</a>
-                    </div>
-                </div>
-
-                <div class="dropdown">
-                    <button class="dropbtn" onclick="toggleMenu('menu-ubica', this)">📍 UBICACIÓN</button>
-                    <div id="menu-ubica" class="dropdown-content">
-                        <p style="padding: 10px; margin:0; font-size: 0.85rem;">Maracay, Edo. Aragua.<br>Servicio a domicilio.</p>
-                    </div>
-                </div>
-
-                <div class="dropdown">
-                    <button class="dropbtn" onclick="toggleMenu('menu-redes', this)">🌐 REDES SOCIALES</button>
-                    <div id="menu-redes" class="dropdown-content">
-                        <a href="https://www.facebook.com/profile.php?id=61590025905540" target="_blank" class="social-item">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="FB">
-                            Facebook
-                        </a>
-                        <a href="https://www.instagram.com/friotecx" target="_blank" class="social-item">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="IG">
-                            Instagram
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="info-column">
-                <h4>CONTACTO RÁPIDO</h4>
+                <span class="contact-title">CONTACTO RÁPIDO</span>
                 <div class="contact-links-container">
                     <a href="https://wa.me/584243497259" target="_blank" class="contact-link whatsapp-link">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA"> WhatsApp
@@ -327,26 +306,31 @@
                 </div>
                 
                 <div class="tasa-box">
-                    <span style="font-size: 0.7rem; letter-spacing: 1px; color: var(--neon-blue);">TASA OFICIAL BCV</span>
+                    <span style="font-size: 0.65rem; letter-spacing: 1px; color: var(--neon-blue); font-weight: bold;">TASA OFICIAL BCV</span>
                     <span id="tasa-display" class="tasa-display">--- BS</span>
                 </div>
 
                 <div class="visitas-box">
-                    <span style="font-size: 0.7rem; letter-spacing: 1px; color: #22c55e;">VISITAS TOTALES</span>
+                    <span style="font-size: 0.65rem; letter-spacing: 1px; color: #22c55e; font-weight: bold;">VISITAS TOTALES</span>
                     <span id="visitas-display" class="visitas-display">0</span>
                 </div>
             </div>
+
+            <div class="dashboard-section">
+                <div class="section-internal-title">🛠️ Trabajos Realizados</div>
+                <div class="carousel-container" id="contenedor-trabajos">
+                    <div class="carousel-slide active"><p style="color: #64748b; font-size:0.85rem; padding:20px; text-align:center;">Cargando historial...</p></div>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <div class="section-internal-title">💬 Opiniones Clientes</div>
+                <div class="reviews-container" id="contenedor-capturas">
+                    <div class="review-slide active"><p style="color: #64748b; font-size:0.85rem; padding:20px; text-align:center;">Cargando opiniones...</p></div>
+                </div>
+            </div>
+
         </div>
-    </div>
-
-    <div class="section-title">🛠️ NUESTROS TRABAJOS REALIZADOS</div>
-    <div class="carousel-container" id="contenedor-trabajos">
-        <div class="carousel-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">Cargando fotos de trabajos realizados...</p></div>
-    </div>
-
-    <div class="section-title">💬 LO QUE DICEN NUESTROS CLIENTES</div>
-    <div class="reviews-container" id="contenedor-capturas">
-        <div class="review-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">Cargando opiniones de WhatsApp...</p></div>
     </div>
 
     <span class="admin-trigger" onclick="toggleAdminPanel()">Acceso de Administración Privado</span>
@@ -490,7 +474,7 @@
                 .then(() => {
                     document.getElementById('admin-auth-box').style.display = 'none';
                     document.getElementById('admin-actions-box').style.display = 'block';
-                    cargarMetricasAdmin(); // Carga el análisis de datos al entrar
+                    cargarMetricasAdmin();
                 })
                 .catch(err => alert("Acceso denegado."));
         }
@@ -525,9 +509,7 @@
                             timestamp: firebase.firestore.FieldValue.serverTimestamp()
                         });
                     }
-                } catch (error) {
-                    console.error(error);
-                }
+                } catch (error) { console.error(error); }
             }
 
             alert(`¡Proceso completado! Se publicaron ${totalArchivos} fotos con éxito.`);
@@ -558,38 +540,30 @@
             }
         }
 
-        // 🧠 SCRIPT INTELIGENTE: REGISTRO CON FILTRO DE DUPLICADOS Y LOG POR FECHAS
         function gestionarContadorVisitas() {
             const ahora = new Date();
             const ano = ahora.getFullYear();
             const mes = String(ahora.getMonth() + 1).padStart(2, '0');
             const dia = String(ahora.getDate()).padStart(2, '0');
             
-            // Generar identificadores de tiempo estructurados
             const idDia = `${ano}-${mes}-${dia}`;
             const idMes = `${ano}-${mes}`;
             const idAno = `${ano}`;
 
-            // Calcular número de semana del año actual
             const inicioAno = new Date(ano, 0, 1);
             const diasPasados = Math.floor((ahora - inicioAno) / (24 * 60 * 60 * 1000));
             const idSemana = `${ano}-W${Math.ceil((diasPasados + inicioAno.getDay() + 1) / 7)}`;
 
-            // Escuchar el contador global en tiempo real (Público)
             db.collection("metricas").doc("global").onSnapshot(doc => {
                 if (doc.exists) {
                     document.getElementById("visitas-display").innerText = doc.data().total || 0;
                 }
             });
 
-            // CONTROL DE USUARIO ÚNICO (Filtro por LocalStorage)
-            // Guardamos una marca para que expire cada 24 horas y permita re-contar al día siguiente si vuelve
             const marcaVisita = localStorage.getItem("friotecx_visited_date");
 
             if (marcaVisita !== idDia) {
-                // Es un usuario nuevo hoy -> Se procesa el registro en el backend de Google
                 localStorage.setItem("friotecx_visited_date", idDia);
-
                 const batch = db.batch();
                 
                 const refGlobal = db.collection("metricas").doc("global");
@@ -606,11 +580,10 @@
                 batch.set(refMes, { total: inc }, { merge: true });
                 batch.set(refAno, { total: inc }, { merge: true });
 
-                batch.commit().catch(err => console.log("Error de sincronización métrica."));
+                batch.commit().catch(err => console.log("Error métricas."));
             }
         }
 
-        // 📊 CARGA DE DATOS ESTADÍSTICOS EN EL PANEL DE CONTROL PRIVADO
         function cargarMetricasAdmin() {
             const ahora = new Date();
             const ano = ahora.getFullYear();
@@ -625,7 +598,6 @@
             const diasPasados = Math.floor((ahora - inicioAno) / (24 * 60 * 60 * 1000));
             const idSemana = `${ano}-W${Math.ceil((diasPasados + inicioAno.getDay() + 1) / 7)}`;
 
-            // Consultas en tiempo real para el panel de administración
             db.collection("metricas_diarias").doc(idDia).onSnapshot(doc => {
                 document.getElementById("stat-hoy").innerText = doc.exists ? doc.data().total : 0;
             });
@@ -661,8 +633,8 @@
                         index++;
                     });
                 } else {
-                    contenedor.innerHTML = '<div class="carousel-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay fotos cargadas. Sube tus trabajos desde el panel.</p></div>';
-                    listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay trabajos registrados.</p>';
+                    contenedor.innerHTML = '<div class="carousel-slide active"><p style="color: #64748b; font-size:0.85rem; padding:20px; text-align:center;">No hay fotos.</p></div>';
+                    listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">Vacio.</p>';
                 }
             });
 
@@ -686,8 +658,8 @@
                         index++;
                     });
                 } else {
-                    contenedor.innerHTML = '<div class="review-slide active"><p style="color: #64748b; font-size:0.9rem; padding:20px; text-align:center;">No hay opiniones disponibles.</p></div>';
-                    listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay capturas registradas.</p>';
+                    contenedor.innerHTML = '<div class="review-slide active"><p style="color: #64748b; font-size:0.85rem; padding:20px; text-align:center;">No hay opiniones.</p></div>';
+                    listaBorrar.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">Vacio.</p>';
                 }
             });
 
@@ -702,7 +674,6 @@
                 if(!snap.empty) {
                     snap.forEach(doc => {
                         const d = doc.data();
-                        
                         const nLink = document.createElement('a');
                         nLink.href = `https://wa.me/584243497259?text=${d.msg}`;
                         nLink.target = "_blank";
@@ -714,19 +685,16 @@
 
                         listaBorrarServ.innerHTML += `
                             <div class="manager-item">
-                                <span>${d.name} (${d.category === 'servicios' ? 'Serv.' : 'Inst.'})</span>
+                                <span>${d.name}</span>
                                 <button class="btn-delete-small" onclick="borrarElementoFirebase('menus', '${doc.id}')">Eliminar</button>
                             </div>`;
                     });
-                } else {
-                    listaBorrarServ.innerHTML = '<p style="color:#64748b; font-size:0.75rem; text-align:center;">No hay servicios dinámicos.</p>';
                 }
             });
         }
         
-        // Inicialización General
         sincronizarBaseDeDatos();
-        gestionarContadorVisitas(); // Inicia el control inteligente de visitas
+        gestionarContadorVisitas();
         setTimeout(rotarTrabajos, 2000);
         setTimeout(rotarCapturas, 2500);
     </script>
